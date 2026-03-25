@@ -1,0 +1,26 @@
+{
+  "zones": [
+    { "id": "rodilla", "nombre": "Rodilla" },
+    { "id": "hombro", "nombre": "Hombro" }
+  ],
+  "exercises": [
+    {
+      "id": "ex_rodilla_01",
+      "zonaId": "rodilla",
+      "nombre": "Extensión de rodilla sentado",
+      "descripcion": "Siéntate con la espalda recta y extiende la pierna lentamente.",
+      "series": 3,
+      "repeticiones": 12,
+      "imagen": "assets/images/placeholder.png"
+    },
+    {
+      "id": "ex_hombro_01",
+      "zonaId": "hombro",
+      "nombre": "Péndulo de hombro",
+      "descripcion": "Inclínate ligeramente y deja el brazo relajado, realiza pequeños círculos.",
+      "series": 2,
+      "repeticiones": 20,
+      "imagen": "assets/images/placeholder.png"
+    }
+  ]
+}

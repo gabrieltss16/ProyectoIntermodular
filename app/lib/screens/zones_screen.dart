@@ -1,0 +1,38 @@
+import 'package:flutter/material.dart';
+import '../services/catalog_service.dart';
+import 'zone_exercises_screen.dart';
+
+class ZonesScreen extends StatelessWidget {
+  final CatalogData data;
+
+  const ZonesScreen({super.key, required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Zonas articulares')),
+      body: ListView.builder(
+        itemCount: data.zones.length,
+        itemBuilder: (context, index) {
+          final z = data.zones[index];
+          return ListTile(
+            title: Text(z.nombre),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ZoneExercisesScreen(
+                    data: data,
+                    zoneId: z.id,
+                    zoneName: z.nombre,
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
