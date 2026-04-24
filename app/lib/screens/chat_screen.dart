@@ -7,6 +7,8 @@ import '../services/chat_usage_limiter.dart';
 import '../services/firebase_bootstrap.dart';
 import '../services/routine_repository.dart';
 import '../models/routine.dart';
+import 'routine_editor_screen.dart';
+import 'routines_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final CatalogData data;
@@ -33,6 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final _routineRepo = RoutineRepository();
   _PendingRoutine? _pendingRoutine;
+  bool _showGoToRoutines = false;
 
   final List<_ChatMessage> _messages = [
     _ChatMessage(
@@ -151,6 +154,7 @@ class _ChatScreenState extends State<ChatScreen> {
       descripcion: 'Generada desde el chat (catálogo local).',
       exerciseIds: ids,
     );
+    _showGoToRoutines = false;
 
     return 'Rutina sugerida para ${zone.first.nombre}:\n$list\n\n'
         'Si quieres que la guarde en “Mis rutinas”, escribe: guardar rutina.';
@@ -177,10 +181,93 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       await _routineRepo.upsert(uid: uid, routine: routine);
       _pendingRoutine = null;
+      _showGoToRoutines = true;
       return 'Listo. He guardado la rutina en “Mis rutinas”.';
     } catch (e) {
       return 'No he podido guardarla: $e';
     }
+  }
+
+  Future<String> _editAndSavePendingRoutine() async {
+    final pending = _pendingRoutine;
+    if (pending == null) {
+      return 'No tengo ninguna rutina pendiente para editar.';
+    }
+
+    final uid = FirebaseBootstrap.isReady ? AuthService().currentUser()?.uid : null;
+    if (uid == null) {
+      return 'Para guardar rutinas necesitas iniciar sesión (RF08: en invitado no se guardan).';
+    }
+
+    final draft = Routine.create(
+      nombre: pending.nombre,
+      descripcion: pending.descripcion,
+      creadaPorIA: true,
+      exerciseIds: pending.exerciseIds,
+    );
+
+    final edited = await Navigator.push<Routine?>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RoutineEditorScreen(
+          data: widget.data,
+          initial: draft,
+          creadaPorIA: true,
+        ),
+      ),
+    );
+
+    if (edited == null) {
+      return 'Edición cancelada. La rutina sigue pendiente; puedes guardarla cuando quieras.';
+    }
+
+    try {
+      await _routineRepo.upsert(uid: uid, routine: edited);
+      _pendingRoutine = null;
+      _showGoToRoutines = true;
+      return 'Perfecto. He guardado la rutina editada en “Mis rutinas”.';
+    } catch (e) {
+      return 'No he podido guardarla: $e';
+    }
+  }
+
+  Future<void> _openMyRoutines() async {
+    final uid = FirebaseBootstrap.isReady ? AuthService().currentUser()?.uid : null;
+    if (uid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Inicia sesión para ver tus rutinas.')),
+      );
+      return;
+    }
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RoutinesScreen(data: widget.data, uid: uid),
+      ),
+    );
+  }
+
+  Future<void> _runPendingAction(Future<String> Function() action) async {
+    if (_sending) return;
+
+    setState(() => _sending = true);
+    final reply = await action();
+    if (!mounted) return;
+
+    setState(() {
+      _messages.add(_ChatMessage(fromUser: false, text: reply));
+      _sending = false;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollCtrl.hasClients) return;
+      _scrollCtrl.animateTo(
+        _scrollCtrl.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   String _respondDemo(String userText) {
@@ -273,6 +360,57 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
+          if (_pendingRoutine != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Rutina pendiente: ${_pendingRoutine!.nombre}',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          FilledButton.icon(
+                            onPressed: _sending
+                                ? null
+                                : () => _runPendingAction(_savePendingRoutine),
+                            icon: const Icon(Icons.save),
+                            label: const Text('Guardar'),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: _sending
+                                ? null
+                                : () => _runPendingAction(_editAndSavePendingRoutine),
+                            icon: const Icon(Icons.edit),
+                            label: const Text('Editar y guardar'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          if (_showGoToRoutines)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: _openMyRoutines,
+                  icon: const Icon(Icons.list_alt),
+                  label: const Text('Ir a Mis rutinas'),
+                ),
+              ),
+            ),
           SafeArea(
             top: false,
             child: Padding(

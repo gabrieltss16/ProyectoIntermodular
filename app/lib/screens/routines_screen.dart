@@ -140,6 +140,23 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
     await _reload();
   }
 
+  Future<void> _duplicate(Routine routine) async {
+    final duplicated = Routine.create(
+      nombre: '${routine.nombre} (copia)',
+      descripcion: routine.descripcion,
+      creadaPorIA: routine.creadaPorIA,
+      exerciseIds: routine.exerciseIds,
+    );
+
+    await _repo.upsert(uid: widget.uid, routine: duplicated);
+    await _reload();
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Rutina duplicada.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -185,10 +202,20 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
                 return ListTile(
                   title: Text(r.nombre),
                   subtitle: Text('$subtitle · ${r.exerciseIds.length} ejercicios'),
-                  trailing: IconButton(
-                    tooltip: 'Eliminar',
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () => _delete(r),
+                  trailing: Wrap(
+                    spacing: 4,
+                    children: [
+                      IconButton(
+                        tooltip: 'Duplicar',
+                        icon: const Icon(Icons.copy_outlined),
+                        onPressed: () => _duplicate(r),
+                      ),
+                      IconButton(
+                        tooltip: 'Eliminar',
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () => _delete(r),
+                      ),
+                    ],
                   ),
                   onTap: () => _open(r),
                 );

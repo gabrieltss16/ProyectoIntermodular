@@ -14,6 +14,26 @@ class RoutineDetailScreen extends StatelessWidget {
     required this.routine,
   });
 
+  Widget _exerciseThumb(BuildContext context, Exercise exercise) {
+    Widget fallback() {
+      return Container(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        alignment: Alignment.center,
+        child: const Icon(Icons.fitness_center),
+      );
+    }
+
+    if (exercise.imagen == null || exercise.imagen!.trim().isEmpty) {
+      return fallback();
+    }
+
+    return Image.asset(
+      exercise.imagen!,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => fallback(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final byId = {for (final e in data.exercises) e.id: e};
@@ -42,6 +62,14 @@ class RoutineDetailScreen extends StatelessWidget {
           ...exercises.map(
             (e) => Card(
               child: ListTile(
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: _exerciseThumb(context, e),
+                  ),
+                ),
                 title: Text(e.nombre),
                 subtitle: Text('${e.series} series · ${e.repeticiones} reps\n${e.descripcion}'),
                 isThreeLine: true,
