@@ -1,0 +1,13 @@
+# Project-level ignores (repo root)
+
+# Keep internal docs/templates out of GitHub for school privacy
+/docs/hito-01.md
+/docs/firebase_setup.md
+/docs/azure_openai_setup.md
+/docs/memoria/
+
+# Generated memory drafts
+/docs/memoria/borradores/
+
+# Local state for memoria script
+/tools/.memoria_state.json
