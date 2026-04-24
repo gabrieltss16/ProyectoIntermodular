@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/catalog_service.dart';
-import 'zones_screen.dart';
+import 'main_menu_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -21,7 +22,12 @@ class HomeScreen extends StatelessWidget {
 
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => ZonesScreen(data: data)),
+                  MaterialPageRoute(
+                    builder: (_) => MainMenuScreen(
+                      data: data,
+                      isGuest: true,
+                    ),
+                  ),
                 );
               },
               child: const Text('Entrar como invitado'),
@@ -29,12 +35,9 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 12),
             OutlinedButton(
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => const AlertDialog(
-                    title: Text('Iniciar sesión'),
-                    content: Text('Próximamente: Firebase Auth'),
-                  ),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
                 );
               },
               child: const Text('Iniciar sesión'),
