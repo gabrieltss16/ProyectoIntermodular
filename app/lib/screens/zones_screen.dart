@@ -4,8 +4,9 @@ import 'zone_exercises_screen.dart';
 
 class ZonesScreen extends StatelessWidget {
   final CatalogData data;
+  final String? uid;
 
-  const ZonesScreen({super.key, required this.data});
+  const ZonesScreen({super.key, required this.data, required this.uid});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +27,7 @@ class ZonesScreen extends StatelessWidget {
                     data: data,
                     zoneId: z.id,
                     zoneName: z.nombre,
+                    uid: uid,
                   ),
                 ),
               );

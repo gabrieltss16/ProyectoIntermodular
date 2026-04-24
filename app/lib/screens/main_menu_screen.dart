@@ -78,7 +78,9 @@ class MainMenuScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => ZonesScreen(data: data)),
+                  MaterialPageRoute(
+                    builder: (_) => ZonesScreen(data: data, uid: uid),
+                  ),
                 );
               },
               child: const Text('Explorar ejercicios por zona'),
