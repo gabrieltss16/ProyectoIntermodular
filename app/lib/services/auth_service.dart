@@ -90,6 +90,28 @@ class AuthService {
     return user;
   }
 
+  Future<void> sendEmailVerification() async {
+    if (!FirebaseBootstrap.isReady) {
+      throw StateError('Firebase no está configurado todavía.');
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw StateError('No hay usuario autenticado para verificar.');
+    }
+
+    if (user.emailVerified) return;
+    await user.sendEmailVerification();
+  }
+
+  Future<bool> isCurrentUserEmailVerified() async {
+    if (!FirebaseBootstrap.isReady) return false;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+    await user.reload();
+    return FirebaseAuth.instance.currentUser?.emailVerified ?? false;
+  }
+
   Future<void> signOut() async {
     if (!FirebaseBootstrap.isReady) return;
     await FirebaseAuth.instance.signOut();

@@ -15,6 +15,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _confirmPasswordCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   bool _loading = false;
@@ -23,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
+    _confirmPasswordCtrl.dispose();
     super.dispose();
   }
 
@@ -73,6 +75,19 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordCtrl.text,
       );
 
+      final verified = await AuthService().isCurrentUserEmailVerified();
+      if (!verified) {
+        await AuthService().sendEmailVerification();
+        await AuthService().signOut();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Debes verificar tu correo antes de iniciar sesión. Te hemos reenviado el email.'),
+          ),
+        );
+        return;
+      }
+
       await _enterMenu(isGuest: false);
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -81,6 +96,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_confirmPasswordCtrl.text != _passwordCtrl.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Las contraseñas no coinciden.')),
+      );
+      return;
+    }
 
     setState(() => _loading = true);
     try {
@@ -96,7 +118,22 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordCtrl.text,
       );
 
-      await _enterMenu(isGuest: false);
+      await AuthService().sendEmailVerification();
+      await AuthService().signOut();
+
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (_) => const AlertDialog(
+          title: Text('Verifica tu correo'),
+          content: Text(
+            'Te hemos enviado un correo de verificación. Confirma tu email y después inicia sesión.',
+          ),
+        ),
+      );
+
+      _passwordCtrl.clear();
+      _confirmPasswordCtrl.clear();
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -138,7 +175,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Introduce una contraseña.';
-                  if (v.length < 4) return 'Mínimo 4 caracteres.';
+                  if (v.length < 6) return 'Mínimo 6 caracteres.';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _confirmPasswordCtrl,
+                decoration: const InputDecoration(labelText: 'Repetir contraseña'),
+                obscureText: true,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Repite la contraseña.';
+                  if (v != _passwordCtrl.text) return 'No coincide con la contraseña.';
                   return null;
                 },
               ),
