@@ -51,9 +51,27 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  String _normalize(String value) {
+    return value
+        .toLowerCase()
+        .replaceAll('á', 'a')
+        .replaceAll('é', 'e')
+        .replaceAll('í', 'i')
+        .replaceAll('ó', 'o')
+        .replaceAll('ú', 'u')
+        .replaceAll('ü', 'u')
+        .trim();
+  }
+
   Future<void> _send() async {
     final text = _ctrl.text.trim();
     if (text.isEmpty) return;
+    if (text.length > 500) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('El mensaje es demasiado largo (máx. 500 caracteres).')),
+      );
+      return;
+    }
 
     setState(() {
       _sending = true;
@@ -61,7 +79,12 @@ class _ChatScreenState extends State<ChatScreen> {
       _ctrl.clear();
     });
 
-    final reply = await _respondAsync(text);
+    String reply;
+    try {
+      reply = await _respondAsync(text);
+    } catch (_) {
+      reply = 'He tenido un problema procesando tu mensaje. Inténtalo de nuevo en unos segundos.';
+    }
 
     if (!mounted) return;
     setState(() {
@@ -80,10 +103,39 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<String> _respondAsync(String userText) async {
-    final lower = userText.toLowerCase().trim();
+    final lower = _normalize(userText);
+
+    if (lower == 'ayuda' || lower == 'help') {
+      return 'Comandos útiles:\n'
+          '• zonas\n'
+          '• rutina hombro\n'
+          '• guardar rutina\n'
+          '• limpiar chat\n'
+          '• cancelar rutina';
+    }
+
+    if (lower == 'limpiar chat') {
+      _messages
+        ..clear()
+        ..add(
+          _ChatMessage(
+            fromUser: false,
+            text: 'Chat reiniciado. Puedes preguntarme por una zona o pedir una rutina.',
+          ),
+        );
+      _pendingRoutine = null;
+      _showGoToRoutines = false;
+      return 'Listo, he limpiado la conversación.';
+    }
+
+    if (lower == 'cancelar rutina') {
+      _pendingRoutine = null;
+      _showGoToRoutines = false;
+      return 'Rutina pendiente cancelada.';
+    }
 
     // Prefer local routine generation (no Azure tokens) when the user asks for a routine.
-    if (lower.startsWith('rutina ') || lower.startsWith('crear rutina ')) {
+    if (lower.startsWith('rutina ') || lower.startsWith('crear rutina ') || lower.contains('hazme rutina')) {
       return _respondRoutineLocal(userText);
     }
 
@@ -128,13 +180,17 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   String _respondRoutineLocal(String userText) {
-    final lower = userText.toLowerCase().trim();
+    final lower = _normalize(userText);
     final zoneName = lower
         .replaceFirst('crear rutina', '')
         .replaceFirst('rutina', '')
+        .replaceFirst('hazme', '')
         .trim();
 
-    final zone = widget.data.zones.where((z) => z.nombre.toLowerCase() == zoneName).toList();
+    final zone = widget.data.zones.where((z) {
+      final normalizedZone = _normalize(z.nombre);
+      return normalizedZone == zoneName || normalizedZone.contains(zoneName) || zoneName.contains(normalizedZone);
+    }).toList();
     if (zone.isEmpty) {
       return 'No encuentro esa zona. Prueba con: ${widget.data.zones.map((z) => z.nombre).join(', ')}.';
     }
@@ -271,9 +327,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   String _respondDemo(String userText) {
-    final lower = userText.toLowerCase();
+    final lower = _normalize(userText);
 
-    final zones = widget.data.zones.map((z) => z.nombre.toLowerCase()).toList();
+    final zones = widget.data.zones.map((z) => _normalize(z.nombre)).toList();
     final matchedZone = zones.where(lower.contains).toList();
 
     if (lower.contains('dolor') || lower.contains('fuerte') || lower.contains('hinch')) {
@@ -288,7 +344,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (matchedZone.isNotEmpty) {
       final zoneName = matchedZone.first;
       final zone = widget.data.zones.firstWhere(
-        (z) => z.nombre.toLowerCase() == zoneName,
+        (z) => _normalize(z.nombre) == zoneName,
         orElse: () => widget.data.zones.first,
       );
       final exercises = widget.data.exercises.where((e) => e.zonaId == zone.id).toList();
@@ -302,7 +358,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (lower.startsWith('rutina ')) {
       final zoneName = lower.replaceFirst('rutina', '').trim();
-      final zone = widget.data.zones.where((z) => z.nombre.toLowerCase() == zoneName).toList();
+      final zone = widget.data.zones.where((z) => _normalize(z.nombre) == zoneName).toList();
       if (zone.isEmpty) {
         return 'No encuentro esa zona. Prueba con: ${widget.data.zones.map((z) => z.nombre).join(', ')}.';
       }
@@ -312,11 +368,11 @@ class _ChatScreenState extends State<ChatScreen> {
       return 'Rutina sugerida (demo) para ${zone.first.nombre}:\n$sample\n\nRecuerda: adapta la intensidad y para si hay dolor.';
     }
 
-    final names = widget.data.exercises.map((e) => e.nombre.toLowerCase()).toList();
+    final names = widget.data.exercises.map((e) => _normalize(e.nombre)).toList();
     final maybeExercise = names.where(lower.contains).toList();
     if (maybeExercise.isNotEmpty) {
       final name = maybeExercise.first;
-      final e = widget.data.exercises.firstWhere((x) => x.nombre.toLowerCase() == name);
+      final e = widget.data.exercises.firstWhere((x) => _normalize(x.nombre) == name);
       return '${e.nombre}: ${e.descripcion}\n\nSeries/Reps: ${e.series}x${e.repeticiones}.';
     }
 
