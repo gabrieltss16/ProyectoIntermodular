@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final data = await CatalogService().load();
     if (!mounted) return;
 
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
         builder: (_) => MainMenuScreen(
@@ -38,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
           isGuest: isGuest,
         ),
       ),
+      (route) => false,
     );
   }
 

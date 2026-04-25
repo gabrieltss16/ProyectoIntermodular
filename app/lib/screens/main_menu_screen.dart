@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/catalog_service.dart';
 import '../services/auth_service.dart';
 import '../services/firebase_bootstrap.dart';
+import 'home_screen.dart';
 import 'chat_screen.dart';
 import 'profile_screen.dart';
 import 'routines_screen.dart';
@@ -17,7 +18,11 @@ class MainMenuScreen extends StatelessWidget {
   Future<void> _logout(BuildContext context) async {
     await AuthService().signOut();
     if (!context.mounted) return;
-    Navigator.popUntil(context, (route) => route.isFirst);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      (route) => false,
+    );
   }
 
   Future<void> _openChat(BuildContext context) async {

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
 import '../services/catalog_service.dart';
 import '../services/user_profile_repository.dart';
+import '../services/auth_service.dart';
+import 'home_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final CatalogData data;
@@ -33,6 +35,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nombreCtrl.dispose();
     _edadCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _logout() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text('¿Deseas cerrar la sesión?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Cerrar sesión'),
+          ),
+        ],
+      ),
+    );
+
+    if (ok == true) {
+      await AuthService().signOut();
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (route) => false,
+      );
+    }
   }
 
   Future<UserProfile> _load() async {
@@ -97,6 +129,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             tooltip: 'Guardar',
             onPressed: _saving ? null : _save,
             icon: const Icon(Icons.save),
+          ),
+          IconButton(
+            tooltip: 'Cerrar sesión',
+            onPressed: _logout,
+            icon: const Icon(Icons.logout),
           ),
         ],
       ),
