@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../services/catalog_service.dart';
 import '../services/auth_service.dart';
 import '../services/firebase_bootstrap.dart';
-import 'main_menu_screen.dart';
-import 'register_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _confirmPasswordCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   bool _loading = false;
@@ -24,23 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
+    _confirmPasswordCtrl.dispose();
     super.dispose();
-  }
-
-  Future<void> _enterMenu({required bool isGuest}) async {
-    final data = await CatalogService().load();
-    if (!mounted) return;
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MainMenuScreen(
-          data: data,
-          isGuest: isGuest,
-        ),
-      ),
-      (route) => false,
-    );
   }
 
   Future<void> _showFirebaseNotReady() async {
@@ -50,48 +33,55 @@ class _LoginScreenState extends State<LoginScreen> {
         title: Text('Firebase no configurado'),
         content: Text(
           'Aún no está configurado Firebase en este proyecto.\n\n'
-          'Puedes entrar en modo demo para probar la app, pero para cumplir RF01/RF06 '
-          'necesitamos terminar la configuración (Firebase Auth + Firestore).',
+          'Para registrarte necesitamos terminar la configuración (Firebase Auth + Firestore).',
         ),
       ),
     );
   }
 
-  Future<void> _login() async {
+  Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_confirmPasswordCtrl.text != _passwordCtrl.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Las contraseñas no coinciden.')),
+      );
+      return;
+    }
 
     setState(() => _loading = true);
     try {
       await FirebaseBootstrap.tryInit();
       if (!FirebaseBootstrap.isReady) {
         await _showFirebaseNotReady();
-        await _enterMenu(isGuest: false);
         return;
       }
 
-      await AuthService().signIn(
+      await AuthService().register(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
 
-      final verified = await AuthService().isCurrentUserEmailVerified();
-      if (!verified) {
-        await AuthService().sendEmailVerification();
-        await AuthService().signOut();
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Debes verificar tu correo antes de iniciar sesión. Te hemos reenviado el email.'),
-          ),
-        );
-        return;
-      }
+      await AuthService().sendEmailVerification();
+      await AuthService().signOut();
 
-      await _enterMenu(isGuest: false);
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (_) => const AlertDialog(
+          title: Text('Verifica tu correo'),
+          content: Text(
+            'Te hemos enviado un correo de verificación. Confirma tu email y después inicia sesión.',
+          ),
+        ),
+      );
+
+      if (!mounted) return;
+      Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al iniciar sesión: $e')),
+        SnackBar(content: Text('Error al registrarse: $e')),
       );
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -101,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Iniciar sesión')),
+      appBar: AppBar(title: const Text('Crear cuenta')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -112,9 +102,8 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Text(
                   FirebaseBootstrap.isReady
-                      ? 'Inicia sesión con Firebase Authentication.'
-                      : 'Si Firebase no está configurado todavía, podrás entrar en modo demo.\n'
-                          'Objetivo 50%: completar Firebase Auth + Firestore.',
+                      ? 'Crea una nueva cuenta con Firebase Authentication.'
+                      : 'Para registrarte necesitas que Firebase esté configurado.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 24),
@@ -134,7 +123,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordCtrl,
-                  decoration: const InputDecoration(labelText: 'Contraseña'),
+                  decoration: const InputDecoration(
+                    labelText: 'Contraseña',
+                    hintText: 'Mínimo 6 caracteres',
+                  ),
                   obscureText: true,
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'Introduce una contraseña.';
@@ -142,35 +134,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _confirmPasswordCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Repetir contraseña',
+                  ),
+                  obscureText: true,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Repite la contraseña.';
+                    if (v != _passwordCtrl.text) return 'No coincide con la contraseña.';
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 24),
                 FilledButton(
-                  onPressed: _loading ? null : _login,
+                  onPressed: _loading ? null : _register,
                   child: _loading
                       ? const SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Entrar'),
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: _loading
-                      ? null
-                      : () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const RegisterScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('¿No tienes cuenta? Regístrate aquí'),
+                      : const Text('Crear cuenta'),
                 ),
                 const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: _loading ? null : () => _enterMenu(isGuest: true),
-                  child: const Text('Entrar en modo demo'),
+                TextButton(
+                  onPressed: _loading ? null : () => Navigator.pop(context),
+                  child: const Text('¿Ya tienes cuenta? Inicia sesión'),
                 ),
               ],
             ),

@@ -56,12 +56,12 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
       context: context,
       builder: (context) {
         return SimpleDialog(
-          title: const Text('Generar rutina por IA (demo)'),
+          title: const Text('Generar rutina por IA'),
           children: [
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'Para el 50%: se genera una rutina automática sin backend.',
+                'Se genera una rutina automática equilibrada por zona (modo local).',
               ),
             ),
             const SizedBox(height: 8),
@@ -92,11 +92,12 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
     }
 
     candidates.shuffle(Random());
-    final chosen = candidates.take(min(6, candidates.length)).map((e) => e.id).toList();
+    final targetCount = min(candidates.length, 4 + Random().nextInt(3)); // 4 a 6 ejercicios
+    final chosen = candidates.take(targetCount).map((e) => e.id).toList();
 
     final routine = Routine.create(
       nombre: 'Rutina ${zone.name}',
-      descripcion: 'Generada automáticamente (demo).',
+      descripcion: 'Generada automáticamente por IA (modo local).',
       creadaPorIA: true,
       exerciseIds: chosen,
     );
@@ -164,7 +165,7 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
         title: const Text('Mis rutinas'),
         actions: [
           IconButton(
-            tooltip: 'Generar por IA (demo)',
+            tooltip: 'Generar por IA',
             onPressed: _createIA,
             icon: const Icon(Icons.auto_awesome),
           ),
@@ -198,7 +199,7 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, i) {
                 final r = routines[i];
-                final subtitle = r.creadaPorIA ? 'Generada por IA (demo)' : 'Manual';
+                final subtitle = r.creadaPorIA ? 'Generada por IA' : 'Manual';
                 return ListTile(
                   title: Text(r.nombre),
                   subtitle: Text('$subtitle · ${r.exerciseIds.length} ejercicios'),

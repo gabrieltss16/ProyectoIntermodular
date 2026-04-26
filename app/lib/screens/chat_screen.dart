@@ -1,3 +1,4 @@
+import 'package:fisioia/models/exercise.dart';
 import 'package:flutter/material.dart';
 
 import '../services/catalog_service.dart';
@@ -22,8 +23,13 @@ class ChatScreen extends StatefulWidget {
 class _ChatMessage {
   final bool fromUser;
   final String text;
+  final String? zoneId; // Si no es null, es una recomendación de ejercicios
 
-  _ChatMessage({required this.fromUser, required this.text});
+  _ChatMessage({
+    required this.fromUser,
+    required this.text,
+    this.zoneId,
+  });
 }
 
 class _ChatScreenState extends State<ChatScreen> {
@@ -63,6 +69,88 @@ class _ChatScreenState extends State<ChatScreen> {
         .trim();
   }
 
+  String? _extractZoneIdFromText(String text) {
+    final lower = _normalize(text);
+    for (final zone in widget.data.zones) {
+      final zn = _normalize(zone.nombre);
+      if (lower.contains(zn)) return zone.id;
+    }
+    return null;
+  }
+
+  List<String> _extractAllZoneIdsFromText(String text) {
+    final lower = _normalize(text);
+    final zones = <String>[];
+    for (final zone in widget.data.zones) {
+      final zn = _normalize(zone.nombre);
+      if (lower.contains(zn) && !zones.contains(zone.id)) {
+        zones.add(zone.id);
+      }
+    }
+    return zones;
+  }
+
+  bool _looksLikeRoutineIntent(String text) {
+    final lower = _normalize(text);
+    return lower.contains('rutina') ||
+        lower.contains('plan') ||
+        lower.contains('sesion') ||
+        lower.contains('ejercicios') ||
+        lower.contains('recomienda');
+  }
+
+  String? _lastUserMessageText() {
+    for (var i = _messages.length - 1; i >= 0; i--) {
+      final m = _messages[i];
+      if (m.fromUser) return m.text;
+    }
+    return null;
+  }
+
+  String _buildPendingRoutineForZone(String zoneId, {String? customName}) {
+    return _buildPendingRoutineForZones([zoneId], customName: customName);
+  }
+
+  String _buildPendingRoutineForZones(List<String> zoneIds, {String? customName}) {
+    if (zoneIds.isEmpty) return 'No hay zonas especificadas.';
+
+    // Collect exercises from all zones
+    final allExercises = <Exercise>[];
+    final zoneNames = <String>[];
+
+    for (final zoneId in zoneIds) {
+      final zone = widget.data.zones.firstWhere((z) => z.id == zoneId);
+      zoneNames.add(zone.nombre);
+      final exercises = widget.data.exercises.where((e) => e.zonaId == zoneId).toList();
+      allExercises.addAll(exercises);
+    }
+
+    if (allExercises.isEmpty) {
+      return 'No tengo ejercicios cargados para las zonas seleccionadas todavía.';
+    }
+
+    // Shuffle and pick (3-4 per zone, up to 10 total)
+    allExercises.shuffle();
+    final maxExercises = (zoneIds.length * 3).clamp(5, 10);
+    final picked = allExercises.take(maxExercises).toList();
+    final ids = picked.map((e) => e.id).toList();
+    final list = picked.map((e) => '• ${e.nombre} (${e.series}x${e.repeticiones})').join('\n');
+
+    final zoneName = zoneNames.length > 1 ? zoneNames.join(' + ') : zoneNames.first;
+    final name = (customName == null || customName.trim().isEmpty)
+        ? '$zoneName · rutina guiada'
+        : customName.trim();
+
+    _pendingRoutine = _PendingRoutine(
+      nombre: name,
+      descripcion: 'Generada desde el chat. Ajustable antes de guardar.',
+      exerciseIds: ids,
+    );
+    _showGoToRoutines = false;
+
+    return 'Rutina sugerida para $zoneName:\n$list';
+  }
+
   Future<void> _send() async {
     final text = _ctrl.text.trim();
     if (text.isEmpty) return;
@@ -80,15 +168,22 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     String reply;
+    String? recommendedZoneId;
     try {
-      reply = await _respondAsync(text);
+      final result = await _respondAsync(text);
+      reply = result['text'] as String;
+      recommendedZoneId = result['zoneId'] as String?;
     } catch (_) {
       reply = 'He tenido un problema procesando tu mensaje. Inténtalo de nuevo en unos segundos.';
     }
 
     if (!mounted) return;
     setState(() {
-      _messages.add(_ChatMessage(fromUser: false, text: reply));
+      _messages.add(_ChatMessage(
+        fromUser: false,
+        text: reply,
+        zoneId: recommendedZoneId,
+      ));
       _sending = false;
     });
 
@@ -102,16 +197,16 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  Future<String> _respondAsync(String userText) async {
+  Future<Map<String, dynamic>> _respondAsync(String userText) async {
     final lower = _normalize(userText);
 
     if (lower == 'ayuda' || lower == 'help') {
-      return 'Comandos útiles:\n'
+      return {'text': 'Comandos útiles:\n'
           '• zonas\n'
           '• rutina hombro\n'
           '• guardar rutina\n'
           '• limpiar chat\n'
-          '• cancelar rutina';
+          '• cancelar rutina'};
     }
 
     if (lower == 'limpiar chat') {
@@ -125,23 +220,40 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       _pendingRoutine = null;
       _showGoToRoutines = false;
-      return 'Listo, he limpiado la conversación.';
+      return {'text': 'Listo, he limpiado la conversación.'};
     }
 
     if (lower == 'cancelar rutina') {
       _pendingRoutine = null;
       _showGoToRoutines = false;
-      return 'Rutina pendiente cancelada.';
+      return {'text': 'Rutina pendiente cancelada.'};
     }
 
-    // Prefer local routine generation (no Azure tokens) when the user asks for a routine.
+    // Prioridad: si parece intención de rutina y detectamos zona(s), generamos pendiente local.
+    final allZoneIds = _extractAllZoneIdsFromText(userText);
+    final zoneId = allZoneIds.isNotEmpty ? allZoneIds.first : null;
+    if (allZoneIds.isNotEmpty && _looksLikeRoutineIntent(userText)) {
+      final text = _buildPendingRoutineForZones(allZoneIds);
+      return {'text': text, 'zoneId': allZoneIds.first};
+    }
+
+    // Backward compatibility con comando explícito.
     if (lower.startsWith('rutina ') || lower.startsWith('crear rutina ') || lower.contains('hazme rutina')) {
-      return _respondRoutineLocal(userText);
+      final text = _respondRoutineLocal(userText);
+      final responseZoneId = _extractZoneIdFromText(text);
+      return {'text': text, 'zoneId': responseZoneId};
     }
 
     // Save routine if the user confirms.
     if (lower == 'guardar rutina' || lower == 'guarda rutina') {
-      return await _savePendingRoutine();
+      if (_pendingRoutine == null) {
+        final last = _lastUserMessageText();
+        final zoneFromLast = last == null ? null : _extractZoneIdFromText(last);
+        if (zoneFromLast != null) {
+          _buildPendingRoutineForZone(zoneFromLast);
+        }
+      }
+      return {'text': await _savePendingRoutine()};
     }
 
     if (AzureOpenAIConfig.isConfigured) {
@@ -151,7 +263,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
         final ok = await _limiter.tryConsume(userKey: userKey);
         if (!ok) {
-          return 'Has alcanzado el límite diario de consultas (10). Vuelve mañana.';
+          return {'text': 'Has alcanzado el límite diario de consultas (10). Vuelve mañana.'};
         }
 
         // Keep only the last few turns to reduce token usage.
@@ -167,16 +279,25 @@ class _ChatScreenState extends State<ChatScreen> {
           });
         }
 
-        return await AzureOpenAIService(data: widget.data).reply(
+        var azureReply = await AzureOpenAIService(data: widget.data).reply(
           userText: userText,
           history: history,
         );
+
+        String? responseZoneId = zoneId;
+        if (zoneId != null && _pendingRoutine == null) {
+          _buildPendingRoutineForZone(zoneId);
+        }
+
+        return {'text': azureReply, 'zoneId': responseZoneId};
       } catch (_) {
-        return _respondDemo(userText);
+        final text = _respondDemo(userText);
+        return {'text': text, 'zoneId': zoneId};
       }
     }
 
-    return _respondDemo(userText);
+    final text = _respondDemo(userText);
+    return {'text': text, 'zoneId': zoneId};
   }
 
   String _respondRoutineLocal(String userText) {
@@ -222,9 +343,10 @@ class _ChatScreenState extends State<ChatScreen> {
       return 'No tengo ninguna rutina pendiente. Pídeme una con “rutina hombro” (por ejemplo).';
     }
 
-    final uid = FirebaseBootstrap.isReady ? AuthService().currentUser()?.uid : null;
-    if (uid == null) {
-      return 'Para guardar rutinas necesitas iniciar sesión (RF08: en invitado no se guardan).';
+    final firebaseReady = FirebaseBootstrap.isReady;
+    final uid = firebaseReady ? AuthService().currentUser()?.uid : null;
+    if (firebaseReady && uid == null) {
+      return 'Para guardar rutinas necesitas iniciar sesión.';
     }
 
     final routine = Routine.create(
@@ -238,7 +360,9 @@ class _ChatScreenState extends State<ChatScreen> {
       await _routineRepo.upsert(uid: uid, routine: routine);
       _pendingRoutine = null;
       _showGoToRoutines = true;
-      return 'Listo. He guardado la rutina en “Mis rutinas”.';
+      return uid == null
+          ? 'Listo. He guardado la rutina en “Mis rutinas” (modo local).'
+          : 'Listo. He guardado la rutina en “Mis rutinas”.';
     } catch (e) {
       return 'No he podido guardarla: $e';
     }
@@ -250,9 +374,10 @@ class _ChatScreenState extends State<ChatScreen> {
       return 'No tengo ninguna rutina pendiente para editar.';
     }
 
-    final uid = FirebaseBootstrap.isReady ? AuthService().currentUser()?.uid : null;
-    if (uid == null) {
-      return 'Para guardar rutinas necesitas iniciar sesión (RF08: en invitado no se guardan).';
+    final firebaseReady = FirebaseBootstrap.isReady;
+    final uid = firebaseReady ? AuthService().currentUser()?.uid : null;
+    if (firebaseReady && uid == null) {
+      return 'Para guardar rutinas necesitas iniciar sesión.';
     }
 
     final draft = Routine.create(
@@ -274,22 +399,115 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     if (edited == null) {
-      return 'Edición cancelada. La rutina sigue pendiente; puedes guardarla cuando quieras.';
+      return ''; // Silent cancel - don't show message
     }
 
     try {
       await _routineRepo.upsert(uid: uid, routine: edited);
       _pendingRoutine = null;
       _showGoToRoutines = true;
-      return 'Perfecto. He guardado la rutina editada en “Mis rutinas”.';
+      return uid == null
+          ? 'Perfecto. He guardado la rutina editada en “Mis rutinas” (modo local).'
+          : 'Perfecto. He guardado la rutina editada en “Mis rutinas”.';
     } catch (e) {
       return 'No he podido guardarla: $e';
     }
   }
 
+  Widget _buildRecommendationCard(BuildContext context, String zoneId) {
+    final zone = widget.data.zones.firstWhere((z) => z.id == zoneId);
+    final exercises = widget.data.exercises
+        .where((e) => e.zonaId == zoneId)
+        .toList()
+      ..shuffle();
+    final picked = exercises.take(5).toList();
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 520),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
+        border: Border(
+          left: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 3,
+          ),
+        ),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.fitness_center,
+                size: 18,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Rutina para ${zone.nombre}',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ...picked.map(
+            (exercise) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Text(
+                '• ${exercise.nombre} (${exercise.series}x${exercise.repeticiones})',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilledButton.icon(
+                onPressed: _sending
+                    ? null
+                    : () {
+                  if (_pendingRoutine == null || _pendingRoutine!.exerciseIds.isEmpty) {
+                    _buildPendingRoutineForZone(zoneId);
+                    setState(() {});
+                  }
+                },
+                icon: const Icon(Icons.save, size: 18),
+                label: const Text('Guardar rutina'),
+              ),
+              OutlinedButton.icon(
+                onPressed: _sending
+                    ? null
+                    : () {
+                  if (_pendingRoutine == null || _pendingRoutine!.exerciseIds.isEmpty) {
+                    _buildPendingRoutineForZone(zoneId);
+                  }
+                  _runPendingAction(_editAndSavePendingRoutine);
+                },
+                icon: const Icon(Icons.edit, size: 18),
+                label: const Text('Editar'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _openMyRoutines() async {
-    final uid = FirebaseBootstrap.isReady ? AuthService().currentUser()?.uid : null;
-    if (uid == null) {
+    final firebaseReady = FirebaseBootstrap.isReady;
+    final uid = firebaseReady ? AuthService().currentUser()?.uid : null;
+    if (firebaseReady && uid == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Inicia sesión para ver tus rutinas.')),
       );
@@ -311,10 +529,15 @@ class _ChatScreenState extends State<ChatScreen> {
     final reply = await action();
     if (!mounted) return;
 
-    setState(() {
-      _messages.add(_ChatMessage(fromUser: false, text: reply));
-      _sending = false;
-    });
+    // Only add message if it's not empty
+    if (reply.isNotEmpty) {
+      setState(() {
+        _messages.add(_ChatMessage(fromUser: false, text: reply));
+        _sending = false;
+      });
+    } else {
+      setState(() => _sending = false);
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollCtrl.hasClients) return;
@@ -411,50 +634,17 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       child: Text(m.text),
                     ),
+                    // Card de recomendación si el mensaje tiene zoneId
+                    if (!m.fromUser && m.zoneId != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12, left: 0, right: 0),
+                        child: _buildRecommendationCard(context, m.zoneId!),
+                      ),
                   ],
                 );
               },
             ),
           ),
-          if (_pendingRoutine != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        'Rutina pendiente: ${_pendingRoutine!.nombre}',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          FilledButton.icon(
-                            onPressed: _sending
-                                ? null
-                                : () => _runPendingAction(_savePendingRoutine),
-                            icon: const Icon(Icons.save),
-                            label: const Text('Guardar'),
-                          ),
-                          OutlinedButton.icon(
-                            onPressed: _sending
-                                ? null
-                                : () => _runPendingAction(_editAndSavePendingRoutine),
-                            icon: const Icon(Icons.edit),
-                            label: const Text('Editar y guardar'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
           if (_showGoToRoutines)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),

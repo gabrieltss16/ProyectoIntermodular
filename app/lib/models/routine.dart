@@ -22,9 +22,10 @@ class Routine {
     required List<String> exerciseIds,
   }) {
     final id = DateTime.now().microsecondsSinceEpoch.toString();
+    final safeName = nombre.trim().isEmpty ? 'Rutina sin nombre' : nombre.trim();
     return Routine(
       id: id,
-      nombre: nombre,
+      nombre: safeName,
       descripcion: descripcion,
       creadaPorIA: creadaPorIA,
       createdAt: DateTime.now(),
@@ -39,9 +40,10 @@ class Routine {
     DateTime? createdAt,
     List<String>? exerciseIds,
   }) {
+    final nextName = (nombre ?? this.nombre).trim();
     return Routine(
       id: id,
-      nombre: nombre ?? this.nombre,
+      nombre: nextName.isEmpty ? 'Rutina sin nombre' : nextName,
       descripcion: descripcion ?? this.descripcion,
       creadaPorIA: creadaPorIA ?? this.creadaPorIA,
       createdAt: createdAt ?? this.createdAt,
@@ -61,9 +63,10 @@ class Routine {
   }
 
   factory Routine.fromJson(Map<String, dynamic> json) {
+    final rawName = ((json['nombre'] as String?) ?? '').trim();
     return Routine(
       id: json['id'] as String,
-      nombre: json['nombre'] as String,
+      nombre: rawName.isEmpty ? 'Rutina sin nombre' : rawName,
       descripcion: (json['descripcion'] as String?) ?? '',
       creadaPorIA: (json['creadaPorIA'] as bool?) ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
