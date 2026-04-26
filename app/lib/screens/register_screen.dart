@@ -90,80 +90,117 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Crear cuenta')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  FirebaseBootstrap.isReady
-                      ? 'Crea una nueva cuenta con Firebase Authentication.'
-                      : 'Para registrarte necesitas que Firebase esté configurado.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _emailCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'tu@email.com',
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              scheme.primaryContainer.withValues(alpha: 0.45),
+              const Color(0xFFF4F8FF),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 8),
+                  Text(
+                    'Crea tu cuenta',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Introduce un email.';
-                    if (!v.contains('@')) return 'Email no válido.';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Contraseña',
-                    hintText: 'Mínimo 6 caracteres',
+                  const SizedBox(height: 8),
+                  Text(
+                    FirebaseBootstrap.isReady
+                        ? 'Guarda rutinas, usa IA personalizada y sincroniza tu progreso.'
+                        : 'Para registrarte necesitamos terminar la configuración de Firebase.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
                   ),
-                  obscureText: true,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Introduce una contraseña.';
-                    if (v.length < 6) return 'Mínimo 6 caracteres.';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _confirmPasswordCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Repetir contraseña',
+                  const SizedBox(height: 18),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextFormField(
+                            controller: _emailCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                              hintText: 'tu@email.com',
+                              prefixIcon: Icon(Icons.alternate_email),
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return 'Introduce un email.';
+                              if (!v.contains('@')) return 'Email no válido.';
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _passwordCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Contraseña',
+                              hintText: 'Mínimo 6 caracteres',
+                              prefixIcon: Icon(Icons.lock_outline),
+                            ),
+                            obscureText: true,
+                            validator: (v) {
+                              if (v == null || v.isEmpty) return 'Introduce una contraseña.';
+                              if (v.length < 6) return 'Mínimo 6 caracteres.';
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _confirmPasswordCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Repetir contraseña',
+                              prefixIcon: Icon(Icons.verified_user_outlined),
+                            ),
+                            obscureText: true,
+                            validator: (v) {
+                              if (v == null || v.isEmpty) return 'Repite la contraseña.';
+                              if (v != _passwordCtrl.text) return 'No coincide con la contraseña.';
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          FilledButton(
+                            onPressed: _loading ? null : _register,
+                            child: _loading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Text('Crear cuenta'),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  obscureText: true,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Repite la contraseña.';
-                    if (v != _passwordCtrl.text) return 'No coincide con la contraseña.';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: _loading ? null : _register,
-                  child: _loading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Crear cuenta'),
-                ),
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: _loading ? null : () => Navigator.pop(context),
-                  child: const Text('¿Ya tienes cuenta? Inicia sesión'),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: _loading ? null : () => Navigator.pop(context),
+                    child: const Text('¿Ya tienes cuenta? Inicia sesión'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -148,8 +148,86 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
     );
   }
 
+  Widget _animatedIn({
+    required int index,
+    required Widget child,
+  }) {
+    final step = (index * 40).clamp(0, 240);
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: 260 + step),
+      curve: Curves.easeOutCubic,
+      builder: (context, t, _) {
+        return Transform.translate(
+          offset: Offset(0, (1 - t) * 10),
+          child: Opacity(opacity: t, child: child),
+        );
+      },
+    );
+  }
+
+  Widget _emptyState({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    String? actionLabel,
+    VoidCallback? onAction,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: scheme.primaryContainer,
+                  child: Icon(icon, size: 30, color: scheme.primary),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                if (actionLabel != null && onAction != null) ...[
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: onAction,
+                    icon: const Icon(Icons.add),
+                    label: Text(actionLabel),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildPresetTab() {
     final zones = widget.data.zones;
+
+    if (zones.isEmpty) {
+      return _emptyState(
+        icon: Icons.category_outlined,
+        title: 'Sin zonas disponibles',
+        subtitle: 'Aún no se han cargado zonas articulares en el catálogo.',
+      );
+    }
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -176,7 +254,9 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
           ),
         ),
         const SizedBox(height: 12),
-        ...zones.map((zone) {
+        ...zones.asMap().entries.map((entry) {
+          final idx = entry.key;
+          final zone = entry.value;
           final routine = _presetRoutineForZone(zone);
           String? firstExerciseName;
           for (final exercise in widget.data.exercises) {
@@ -186,23 +266,26 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
             }
           }
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Card(
-              child: ListTile(
-                title: Text(zone.nombre),
-                subtitle: Text(
-                  routine.exerciseIds.isEmpty
-                      ? 'Sin ejercicios disponibles todavía.'
-                      : '${routine.exerciseIds.length} ejercicios base · ${firstExerciseName ?? 'Rutina base'}',
-                ),
-                leading: CircleAvatar(
-                  child: Text(
-                    zone.nombre.isNotEmpty ? zone.nombre[0].toUpperCase() : '?',
+          return _animatedIn(
+            index: idx,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Card(
+                child: ListTile(
+                  title: Text(zone.nombre),
+                  subtitle: Text(
+                    routine.exerciseIds.isEmpty
+                        ? 'Sin ejercicios disponibles todavía.'
+                        : '${routine.exerciseIds.length} ejercicios base · ${firstExerciseName ?? 'Rutina base'}',
                   ),
+                  leading: CircleAvatar(
+                    child: Text(
+                      zone.nombre.isNotEmpty ? zone.nombre[0].toUpperCase() : '?',
+                    ),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _openPreset(zone),
                 ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _openPreset(zone),
               ),
             ),
           );
@@ -225,11 +308,12 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
         }
 
         if (routines == null || routines.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('Aún no tienes rutinas. Pulsa + para crear una.'),
-            ),
+          return _emptyState(
+            icon: Icons.playlist_add_circle_outlined,
+            title: 'Todavía no tienes rutinas',
+            subtitle: 'Crea una rutina propia o guarda una desde el chat de IA.',
+            actionLabel: 'Crear rutina',
+            onAction: _createManual,
           );
         }
 
@@ -242,26 +326,29 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
             itemBuilder: (context, i) {
               final r = routines[i];
               final subtitle = r.creadaPorIA ? 'Creada desde IA' : 'Manual';
-              return Card(
-                child: ListTile(
-                  title: Text(r.nombre),
-                  subtitle: Text('$subtitle · ${r.exerciseIds.length} ejercicios'),
-                  trailing: Wrap(
-                    spacing: 4,
-                    children: [
-                      IconButton(
-                        tooltip: 'Duplicar',
-                        icon: const Icon(Icons.copy_outlined),
-                        onPressed: () => _duplicate(r),
-                      ),
-                      IconButton(
-                        tooltip: 'Eliminar',
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () => _delete(r),
-                      ),
-                    ],
+              return _animatedIn(
+                index: i,
+                child: Card(
+                  child: ListTile(
+                    title: Text(r.nombre),
+                    subtitle: Text('$subtitle · ${r.exerciseIds.length} ejercicios'),
+                    trailing: Wrap(
+                      spacing: 4,
+                      children: [
+                        IconButton(
+                          tooltip: 'Duplicar',
+                          icon: const Icon(Icons.copy_outlined),
+                          onPressed: () => _duplicate(r),
+                        ),
+                        IconButton(
+                          tooltip: 'Eliminar',
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () => _delete(r),
+                        ),
+                      ],
+                    ),
+                    onTap: () => _open(r),
                   ),
-                  onTap: () => _open(r),
                 ),
               );
             },

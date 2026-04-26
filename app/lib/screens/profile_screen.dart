@@ -119,6 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final zones = widget.data.zones;
 
     return Scaffold(
@@ -152,60 +153,96 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           }
 
-          return Padding(
+          return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextField(
-                  controller: _nombreCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _edadCtrl,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Edad',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Zona articular principal',
-                    border: OutlineInputBorder(),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _zonaPrincipalId,
-                      isExpanded: true,
-                      hint: const Text('Selecciona una zona'),
-                      items: zones
-                          .map(
-                            (z) => DropdownMenuItem<String>(
-                              value: z.id,
-                              child: Text(z.nombre),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (v) => setState(() => _zonaPrincipalId = v),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: scheme.primaryContainer,
+                          child: Icon(Icons.person, color: scheme.primary),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Configura tu perfil para personalizar recomendaciones y rutinas.',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                FilledButton(
-                  onPressed: _saving ? null : _save,
-                  child: _saving
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Guardar'),
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextField(
+                          controller: _nombreCtrl,
+                          decoration: const InputDecoration(
+                            labelText: 'Nombre',
+                            prefixIcon: Icon(Icons.badge_outlined),
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _edadCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Edad',
+                            prefixIcon: Icon(Icons.cake_outlined),
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Zona articular principal',
+                            border: OutlineInputBorder(),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _zonaPrincipalId,
+                              isExpanded: true,
+                              hint: const Text('Selecciona una zona'),
+                              items: zones
+                                  .map(
+                                    (z) => DropdownMenuItem<String>(
+                                      value: z.id,
+                                      child: Text(z.nombre),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (v) => setState(() => _zonaPrincipalId = v),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton(
+                          onPressed: _saving ? null : _save,
+                          child: _saving
+                              ? const SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Text('Guardar'),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

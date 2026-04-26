@@ -18,6 +18,21 @@ class ZoneExercisesScreen extends StatelessWidget {
     required this.uid,
   });
 
+  Widget _animatedIn({required int index, required Widget child}) {
+    final step = (index * 35).clamp(0, 220);
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: 240 + step),
+      curve: Curves.easeOutCubic,
+      builder: (context, t, _) {
+        return Transform.translate(
+          offset: Offset(0, (1 - t) * 8),
+          child: Opacity(opacity: t, child: child),
+        );
+      },
+    );
+  }
+
   Future<void> _createRoutineFromExercise(BuildContext context, dynamic exercise) async {
     if (uid == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -146,25 +161,83 @@ class ZoneExercisesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final exercises = data.exercises.where((e) => e.zonaId == zoneId).toList();
+
+    if (exercises.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: Text(zoneName)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: scheme.primaryContainer,
+                      child: Icon(Icons.fitness_center, color: scheme.primary, size: 30),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text('No hay ejercicios cargados para esta zona todavía.'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(zoneName)),
-      body: ListView.builder(
-        itemCount: exercises.length,
-        itemBuilder: (context, i) {
-          final e = exercises[i];
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              title: Text(e.nombre),
-              subtitle: Text('${e.series} series · ${e.repeticiones} reps'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _openExerciseDetails(context, e),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: scheme.primaryContainer,
+                    child: Icon(Icons.fitness_center, color: scheme.primary),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Ejercicios disponibles: ${exercises.length}',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          );
-        },
+          ),
+          const SizedBox(height: 10),
+          ...exercises.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final e = entry.value;
+            return _animatedIn(
+              index: idx,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Card(
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    title: Text(e.nombre),
+                    subtitle: Text('${e.series} series · ${e.repeticiones} reps'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _openExerciseDetails(context, e),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

@@ -781,6 +781,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Asistente (IA)'),
@@ -815,84 +817,102 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollCtrl,
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              itemBuilder: (context, i) {
-                final m = _messages[i];
-                final align = m.fromUser ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-                final color = m.fromUser
-                    ? Theme.of(context).colorScheme.primaryContainer
-                    : Theme.of(context).colorScheme.surfaceContainerHighest;
-
-                return Column(
-                  crossAxisAlignment: align,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 6),
-                      padding: const EdgeInsets.all(12),
-                      constraints: const BoxConstraints(maxWidth: 520),
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(m.text),
-                    ),
-                    // Card de recomendación si el mensaje tiene zoneId
-                    if (!m.fromUser && m.zoneId != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12, left: 0, right: 0),
-                        child: _buildRecommendationCard(context, m),
-                      ),
-                  ],
-                );
-              },
-            ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              scheme.primaryContainer.withValues(alpha: 0.25),
+              const Color(0xFFF4F8FF),
+            ],
           ),
-          if (_showGoToRoutines)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: _openMyRoutines,
-                  icon: const Icon(Icons.list_alt),
-                  label: const Text('Ir a Mis rutinas'),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollCtrl,
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                itemCount: _messages.length,
+                itemBuilder: (context, i) {
+                  final m = _messages[i];
+                  final align = m.fromUser ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+                  final color = m.fromUser
+                      ? scheme.primaryContainer
+                      : scheme.surface;
+
+                  return Column(
+                    crossAxisAlignment: align,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        padding: const EdgeInsets.all(12),
+                        constraints: const BoxConstraints(maxWidth: 520),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: scheme.outlineVariant),
+                        ),
+                        child: Text(m.text),
+                      ),
+                      if (!m.fromUser && m.zoneId != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: _buildRecommendationCard(context, m),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            if (_showGoToRoutines)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.tonalIcon(
+                    onPressed: _openMyRoutines,
+                    icon: const Icon(Icons.list_alt),
+                    label: const Text('Ir a Mis rutinas'),
+                  ),
+                ),
+              ),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _ctrl,
+                        decoration: const InputDecoration(
+                          hintText: 'Escribe tu pregunta...',
+                          border: OutlineInputBorder(),
+                        ),
+                        enabled: !_sending,
+                        onSubmitted: (_) => _send(),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    FilledButton(
+                      onPressed: _sending ? null : _send,
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(52, 52),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: const Icon(Icons.send_rounded),
+                    ),
+                  ],
                 ),
               ),
             ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _ctrl,
-                      decoration: const InputDecoration(
-                        hintText: 'Escribe tu pregunta…',
-                        border: OutlineInputBorder(),
-                      ),
-                      enabled: !_sending,
-                      onSubmitted: (_) => _send(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    tooltip: 'Enviar',
-                    onPressed: _sending ? null : _send,
-                    icon: const Icon(Icons.send),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

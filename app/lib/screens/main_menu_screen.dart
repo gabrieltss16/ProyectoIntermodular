@@ -21,6 +21,33 @@ class MainMenuScreen extends StatefulWidget {
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
   int _selectedIndex = 0;
+  late final PageController _pageController;
+
+  Widget _navIcon({
+    required int index,
+    required IconData inactive,
+    required IconData active,
+  }) {
+    final selected = _selectedIndex == index;
+    return AnimatedScale(
+      scale: selected ? 1.08 : 1.0,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+      child: Icon(selected ? active : inactive),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _selectedIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   Future<void> _logout() async {
     await AuthService().signOut();
@@ -85,8 +112,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (index) {
+          if (!mounted) return;
+          setState(() => _selectedIndex = index);
+        },
         children: pages,
       ),
       bottomNavigationBar: NavigationBar(
@@ -96,33 +128,39 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             await _confirmLogout();
             return;
           }
+          if (_selectedIndex == index) return;
           setState(() => _selectedIndex = index);
+          await _pageController.animateToPage(
+            index,
+            duration: const Duration(milliseconds: 280),
+            curve: Curves.easeOutCubic,
+          );
         },
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
+            icon: _navIcon(index: 0, inactive: Icons.home_outlined, active: Icons.home),
+            selectedIcon: _navIcon(index: 0, inactive: Icons.home_outlined, active: Icons.home),
             label: 'IA',
           ),
           NavigationDestination(
-            icon: Icon(Icons.view_agenda_outlined),
-            selectedIcon: Icon(Icons.view_agenda),
+            icon: _navIcon(index: 1, inactive: Icons.view_agenda_outlined, active: Icons.view_agenda),
+            selectedIcon: _navIcon(index: 1, inactive: Icons.view_agenda_outlined, active: Icons.view_agenda),
             label: 'Rutinas',
           ),
           NavigationDestination(
-            icon: Icon(Icons.directions_run_outlined),
-            selectedIcon: Icon(Icons.directions_run),
+            icon: _navIcon(index: 2, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
+            selectedIcon: _navIcon(index: 2, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
             label: 'Explorar',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
+            icon: _navIcon(index: 3, inactive: Icons.person_outline, active: Icons.person),
+            selectedIcon: _navIcon(index: 3, inactive: Icons.person_outline, active: Icons.person),
             label: 'Perfil',
           ),
           NavigationDestination(
-            icon: Icon(Icons.logout_outlined),
-            selectedIcon: Icon(Icons.logout),
+            icon: _navIcon(index: 4, inactive: Icons.logout_outlined, active: Icons.logout),
+            selectedIcon: _navIcon(index: 4, inactive: Icons.logout_outlined, active: Icons.logout),
             label: 'Salir',
           ),
         ],
