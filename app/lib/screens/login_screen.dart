@@ -147,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const SizedBox(height: 8),
                   Text(
-                    'Bienvenido de nuevo',
+                    'Bienvenido',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
@@ -212,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(height: 10),
                           OutlinedButton(
                             onPressed: _loading ? null : () => _enterMenu(isGuest: true),
-                            child: const Text('Entrar en modo demo'),
+                            child: const Text('Entrar como invitado'),
                           ),
                         ],
                       ),

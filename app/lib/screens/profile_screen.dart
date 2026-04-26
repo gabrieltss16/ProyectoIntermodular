@@ -25,7 +25,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final _nombreCtrl = TextEditingController();
   final _edadCtrl = TextEditingController();
+  final _objetivosCtrl = TextEditingController();
+  final _nivelExperienciaCtrl = TextEditingController();
   String? _zonaPrincipalId;
+  String? _nivelExperienciaValue = 'principiante';
 
   bool _saving = false;
   bool _loaded = false;
@@ -34,6 +37,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void dispose() {
     _nombreCtrl.dispose();
     _edadCtrl.dispose();
+    _objetivosCtrl.dispose();
+    _nivelExperienciaCtrl.dispose();
     super.dispose();
   }
 
@@ -72,6 +77,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (!_loaded) {
       _nombreCtrl.text = profile.nombre ?? '';
+      _nivelExperienciaValue = profile.nivelExperiencia ?? 'principiante';
+      _objetivosCtrl.text = profile.objetivos ?? '';
       _edadCtrl.text = profile.edad?.toString() ?? '';
       _zonaPrincipalId = profile.zonaPrincipalId;
       _loaded = true;
@@ -84,6 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final nombre = _nombreCtrl.text.trim();
     final edadTxt = _edadCtrl.text.trim();
     final edad = edadTxt.isEmpty ? null : int.tryParse(edadTxt);
+    final objetivos = _objetivosCtrl.text.trim();
 
     if (edadTxt.isNotEmpty && edad == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -100,12 +108,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           nombre: nombre.isEmpty ? null : nombre,
           edad: edad,
           zonaPrincipalId: _zonaPrincipalId,
+          nivelExperiencia: _nivelExperienciaValue,
+          objetivos: objetivos.isEmpty ? null : objetivos,
         ),
       );
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Perfil guardado.')),
+        const SnackBar(content: Text('Perfil guardado correctamente.')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -125,18 +135,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mi perfil'),
-        actions: [
-          IconButton(
-            tooltip: 'Guardar',
-            onPressed: _saving ? null : _save,
-            icon: const Icon(Icons.save),
-          ),
-          IconButton(
-            tooltip: 'Cerrar sesión',
-            onPressed: _logout,
-            icon: const Icon(Icons.logout),
-          ),
-        ],
       ),
       body: FutureBuilder<UserProfile>(
         future: _load(),
@@ -159,29 +157,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundColor: scheme.primaryContainer,
-                          child: Icon(Icons.person, color: scheme.primary),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Configura tu perfil para personalizar recomendaciones y rutinas.',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        colors: [
+                          scheme.primaryContainer.withValues(alpha: 0.6),
+                          scheme.primaryContainer.withValues(alpha: 0.2),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: scheme.primary,
+                            child: Icon(Icons.person, color: Colors.white, size: 24),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Información personal',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: scheme.primary,
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Personaliza tu perfil para mejores recomendaciones.',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: scheme.onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -190,27 +214,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         TextField(
                           controller: _nombreCtrl,
-                          decoration: const InputDecoration(
-                            labelText: 'Nombre',
-                            prefixIcon: Icon(Icons.badge_outlined),
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: 'Nombre completo',
+                            prefixIcon: const Icon(Icons.badge_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 12),
                         TextField(
                           controller: _edadCtrl,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Edad',
-                            prefixIcon: Icon(Icons.cake_outlined),
-                            border: OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.cake_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 12),
                         InputDecorator(
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
+                            labelText: 'Nivel de experiencia',
+                            prefixIcon: const Icon(Icons.trending_up_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _nivelExperienciaValue,
+                              isExpanded: true,
+                              hint: const Text('Selecciona tu nivel'),
+                              items: [
+                                DropdownMenuItem<String>(
+                                  value: 'principiante',
+                                  child: const Text('Principiante'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'intermedio',
+                                  child: const Text('Intermedio'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'avanzado',
+                                  child: const Text('Avanzado'),
+                                ),
+                              ],
+                              onChanged: (v) => setState(() => _nivelExperienciaValue = v),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        InputDecorator(
+                          decoration: InputDecoration(
                             labelText: 'Zona articular principal',
-                            border: OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.health_and_safety_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
@@ -229,21 +292,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _objetivosCtrl,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            labelText: 'Objetivos personales',
+                            hintText: 'Ej: Recuperarme de una lesión, mejorar flexibilidad...',
+                            prefixIcon: const Icon(Icons.flag_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         FilledButton(
                           onPressed: _saving ? null : _save,
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(52),
+                          ),
                           child: _saving
                               ? const SizedBox(
-                                  height: 18,
-                                  width: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
                                 )
-                              : const Text('Guardar'),
+                              : const Text('Guardar cambios'),
                         ),
                       ],
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.red.withValues(alpha: 0.2),
+                              child: const Icon(Icons.logout, color: Colors.red, size: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Sesión',
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton(
+                          onPressed: _logout,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.red),
+                            minimumSize: const Size.fromHeight(48),
+                          ),
+                          child: const Text(
+                            'Cerrar sesión',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
               ],
             ),
           );

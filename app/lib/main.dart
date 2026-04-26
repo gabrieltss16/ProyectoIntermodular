@@ -14,23 +14,27 @@ class MyApp extends StatelessWidget {
 
   ThemeData _buildTheme() {
     final scheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF1565C0),
+      seedColor: const Color(0xFF0052FF),
       brightness: Brightness.light,
     );
 
     return ThemeData(
       useMaterial3: true,
-      colorScheme: scheme,
-      scaffoldBackgroundColor: const Color(0xFFF4F8FF),
+      colorScheme: scheme.copyWith(
+        primary: const Color(0xFF0052FF),
+        secondary: const Color(0xFF1E88E5),
+      ),
+      scaffoldBackgroundColor: const Color(0xFFF5F8FF),
       textTheme: Typography.blackMountainView.apply(
         bodyColor: const Color(0xFF0F172A),
         displayColor: const Color(0xFF0F172A),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: scheme.surface,
-        foregroundColor: scheme.onSurface,
+        backgroundColor: const Color(0xFF0052FF),
+        foregroundColor: Colors.white,
         centerTitle: false,
-        elevation: 0,
+        elevation: 2,
+        shadowColor: Colors.black.withValues(alpha: 0.1),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
@@ -69,9 +73,11 @@ class MyApp extends StatelessWidget {
         side: BorderSide(color: scheme.outlineVariant),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: scheme.surface,
-        indicatorColor: scheme.primaryContainer,
-        height: 74,
+        backgroundColor: Colors.white,
+        indicatorColor: const Color(0xFF0052FF).withValues(alpha: 0.15),
+        iconTheme: const WidgetStatePropertyAll(IconThemeData(size: 28)),
+        labelTextStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        height: 80,
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: scheme.inverseSurface,

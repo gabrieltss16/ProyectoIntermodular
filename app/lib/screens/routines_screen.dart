@@ -13,12 +13,14 @@ class RoutinesScreen extends StatefulWidget {
   final CatalogData data;
   final String? uid;
   final bool isGuest;
+  final VoidCallback? onGuestBack;
 
   const RoutinesScreen({
     super.key,
     required this.data,
     required this.uid,
     this.isGuest = false,
+    this.onGuestBack,
   });
 
   @override
@@ -322,32 +324,84 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
           child: ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: routines.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 8),
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
             itemBuilder: (context, i) {
               final r = routines[i];
-              final subtitle = r.creadaPorIA ? 'Creada desde IA' : 'Manual';
+              final scheme = Theme.of(context).colorScheme;
+              
               return _animatedIn(
                 index: i,
-                child: Card(
-                  child: ListTile(
-                    title: Text(r.nombre),
-                    subtitle: Text('$subtitle · ${r.exerciseIds.length} ejercicios'),
-                    trailing: Wrap(
-                      spacing: 4,
-                      children: [
-                        IconButton(
-                          tooltip: 'Duplicar',
-                          icon: const Icon(Icons.copy_outlined),
-                          onPressed: () => _duplicate(r),
+                child: GestureDetector(
+                  onTap: () => _open(r),
+                  child: Card(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        gradient: LinearGradient(
+                          colors: [
+                            scheme.primaryContainer.withValues(alpha: 0.5),
+                            scheme.primaryContainer.withValues(alpha: 0.2),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        IconButton(
-                          tooltip: 'Eliminar',
-                          icon: const Icon(Icons.delete_outline),
-                          onPressed: () => _delete(r),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        r.nombre,
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: scheme.primary.withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          '${r.exerciseIds.length} ejercicio${r.exerciseIds.length == 1 ? '' : 's'}',
+                                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                                color: scheme.primary,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuButton(
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      child: const Text('Duplicar'),
+                                      onTap: () => _duplicate(r),
+                                    ),
+                                    PopupMenuItem(
+                                      child: const Text('Eliminar'),
+                                      onTap: () => _delete(r),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                    onTap: () => _open(r),
                   ),
                 ),
               );
@@ -364,13 +418,20 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
 
     return Scaffold(
       appBar: AppBar(
+        leading: widget.isGuest
+            ? IconButton(
+                tooltip: 'Volver',
+                onPressed: widget.onGuestBack,
+                icon: const Icon(Icons.arrow_back),
+              )
+            : null,
         title: const Text('Rutinas'),
         bottom: showUserTab
             ? TabBar(
                 controller: _tabController,
                 tabs: const [
-                  Tab(text: 'Predeterminadas'),
                   Tab(text: 'Mis rutinas'),
+                  Tab(text: 'Predeterminadas'),
                 ],
               )
             : null,
@@ -379,12 +440,12 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
           ? TabBarView(
               controller: _tabController,
               children: [
-                _buildPresetTab(),
                 _buildUserTab(),
+                _buildPresetTab(),
               ],
             )
           : _buildPresetTab(),
-      floatingActionButton: showUserTab && _tabController.index == 1
+      floatingActionButton: showUserTab && _tabController.index == 0
           ? FloatingActionButton(
               onPressed: _createManual,
               child: const Icon(Icons.add),

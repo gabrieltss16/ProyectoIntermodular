@@ -61,7 +61,7 @@ class _ChatMessage {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  static const _chatStorageKey = 'chat_screen_messages_v1';
+  static const _chatStorageKeyBase = 'chat_screen_messages_v1';
 
   final _ctrl = TextEditingController();
   final _scrollCtrl = ScrollController();
@@ -95,9 +95,16 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  Future<String> _chatStorageKeyForCurrentUser() async {
+    final uid = FirebaseBootstrap.isReady ? AuthService().currentUser()?.uid : null;
+    final userKey = (uid == null || uid.trim().isEmpty) ? 'guest' : uid;
+    return '${_chatStorageKeyBase}_$userKey';
+  }
+
   Future<void> _restoreChat() async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_chatStorageKey);
+    final storageKey = await _chatStorageKeyForCurrentUser();
+    final raw = prefs.getString(storageKey);
 
     if (!mounted) return;
 
@@ -136,11 +143,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _persistChat() async {
     final prefs = await SharedPreferences.getInstance();
+    final storageKey = await _chatStorageKeyForCurrentUser();
     final payload = _messages
         .skip(_messages.length > 120 ? _messages.length - 120 : 0)
         .map((m) => m.toJson())
         .toList();
-    await prefs.setString(_chatStorageKey, jsonEncode(payload));
+    await prefs.setString(storageKey, jsonEncode(payload));
   }
 
   Future<void> _resetChat() async {
@@ -871,10 +879,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: SizedBox(
                   width: double.infinity,
-                  child: FilledButton.tonalIcon(
-                    onPressed: _openMyRoutines,
-                    icon: const Icon(Icons.list_alt),
-                    label: const Text('Ir a Mis rutinas'),
+                  child: Text(
+                    'Rutina guardada en "Mis rutinas"',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontStyle: FontStyle.italic,
+                        ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -896,6 +907,22 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
+                    Tooltip(
+                      message: 'Nuevo chat',
+                      child: FilledButton(
+                        onPressed: _sending ? null : _resetChat,
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(52, 52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: EdgeInsets.zero,
+                          backgroundColor: Theme.of(context).colorScheme.secondary,
+                        ),
+                        child: const Icon(Icons.add_circle_outline),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     FilledButton(
                       onPressed: _sending ? null : _send,
                       style: FilledButton.styleFrom(

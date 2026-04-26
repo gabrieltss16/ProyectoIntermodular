@@ -98,13 +98,72 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   Widget build(BuildContext context) {
     final uid = (!widget.isGuest && FirebaseBootstrap.isReady) ? AuthService().currentUser()?.uid : null;
     if (widget.isGuest) {
-      return RoutinesScreen(data: widget.data, uid: uid, isGuest: true);
+      return Scaffold(
+        body: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: (index) {
+            if (!mounted) return;
+            setState(() => _selectedIndex = index);
+          },
+          children: [
+            ZonesScreen(data: widget.data, uid: null),
+            RoutinesScreen(
+              data: widget.data,
+              uid: null,
+              isGuest: true,
+              onGuestBack: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  (route) => false,
+                );
+              },
+            ),
+            _loginRequiredPage(),
+          ],
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: (index) {
+            if (index == 2) {
+              _confirmLogout();
+              return;
+            }
+            if (_selectedIndex == index) return;
+            setState(() => _selectedIndex = index);
+            _pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 280),
+              curve: Curves.easeOutCubic,
+            );
+          },
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: [
+            NavigationDestination(
+              icon: _navIcon(index: 0, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
+              selectedIcon: _navIcon(index: 0, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
+              label: 'Explorar',
+            ),
+            NavigationDestination(
+              icon: _navIcon(index: 1, inactive: Icons.view_agenda_outlined, active: Icons.view_agenda),
+              selectedIcon: _navIcon(index: 1, inactive: Icons.view_agenda_outlined, active: Icons.view_agenda),
+              label: 'Rutinas',
+            ),
+            NavigationDestination(
+              icon: _navIcon(index: 2, inactive: Icons.logout_outlined, active: Icons.logout),
+              selectedIcon: _navIcon(index: 2, inactive: Icons.logout_outlined, active: Icons.logout),
+              label: 'Salir',
+            ),
+          ],
+        ),
+      );
     }
 
     final pages = <Widget>[
-      ChatScreen(data: widget.data),
-      RoutinesScreen(data: widget.data, uid: uid),
       ZonesScreen(data: widget.data, uid: uid),
+      RoutinesScreen(data: widget.data, uid: uid),
+      ChatScreen(data: widget.data),
       if (uid != null)
         ProfileScreen(data: widget.data, uid: uid)
       else
@@ -139,9 +198,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: [
           NavigationDestination(
-            icon: _navIcon(index: 0, inactive: Icons.home_outlined, active: Icons.home),
-            selectedIcon: _navIcon(index: 0, inactive: Icons.home_outlined, active: Icons.home),
-            label: 'IA',
+            icon: _navIcon(index: 0, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
+            selectedIcon: _navIcon(index: 0, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
+            label: 'Explorar',
           ),
           NavigationDestination(
             icon: _navIcon(index: 1, inactive: Icons.view_agenda_outlined, active: Icons.view_agenda),
@@ -149,9 +208,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             label: 'Rutinas',
           ),
           NavigationDestination(
-            icon: _navIcon(index: 2, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
-            selectedIcon: _navIcon(index: 2, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
-            label: 'Explorar',
+            icon: _navIcon(index: 2, inactive: Icons.smart_toy_outlined, active: Icons.smart_toy),
+            selectedIcon: _navIcon(index: 2, inactive: Icons.smart_toy_outlined, active: Icons.smart_toy),
+            label: 'IA',
           ),
           NavigationDestination(
             icon: _navIcon(index: 3, inactive: Icons.person_outline, active: Icons.person),
