@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:fisioia/models/exercise.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/catalog_service.dart';
 import '../services/azure_openai_service.dart';
@@ -24,15 +27,42 @@ class _ChatMessage {
   final bool fromUser;
   final String text;
   final String? zoneId; // Si no es null, es una recomendación de ejercicios
+  final List<String>? suggestedExerciseIds;
+  final String? suggestedRoutineName;
 
   _ChatMessage({
     required this.fromUser,
     required this.text,
     this.zoneId,
+    this.suggestedExerciseIds,
+    this.suggestedRoutineName,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'fromUser': fromUser,
+      'text': text,
+      'zoneId': zoneId,
+      'suggestedExerciseIds': suggestedExerciseIds,
+      'suggestedRoutineName': suggestedRoutineName,
+    };
+  }
+
+  factory _ChatMessage.fromJson(Map<String, dynamic> json) {
+    final ids = (json['suggestedExerciseIds'] as List?)?.map((e) => e.toString()).toList();
+    return _ChatMessage(
+      fromUser: json['fromUser'] == true,
+      text: (json['text'] as String?) ?? '',
+      zoneId: json['zoneId'] as String?,
+      suggestedExerciseIds: ids,
+      suggestedRoutineName: json['suggestedRoutineName'] as String?,
+    );
+  }
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  static const _chatStorageKey = 'chat_screen_messages_v1';
+
   final _ctrl = TextEditingController();
   final _scrollCtrl = ScrollController();
 
@@ -43,18 +73,115 @@ class _ChatScreenState extends State<ChatScreen> {
   _PendingRoutine? _pendingRoutine;
   bool _showGoToRoutines = false;
 
-  final List<_ChatMessage> _messages = [
-    _ChatMessage(
-      fromUser: false,
-      text: 'Hola. Soy tu asistente (demo). Pregúntame sobre ejercicios o zonas (rodilla, hombro…).',
-    ),
-  ];
+  final List<_ChatMessage> _messages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreChat();
+  }
 
   @override
   void dispose() {
     _ctrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
+  }
+
+  _ChatMessage _initialAssistantMessage() {
+    return _ChatMessage(
+      fromUser: false,
+      text: 'Hola. Soy tu asistente (demo). Preguntame sobre ejercicios o zonas (rodilla, hombro...).',
+    );
+  }
+
+  Future<void> _restoreChat() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_chatStorageKey);
+
+    if (!mounted) return;
+
+    if (raw == null || raw.trim().isEmpty) {
+      setState(() {
+        _messages
+          ..clear()
+          ..add(_initialAssistantMessage());
+      });
+      return;
+    }
+
+    try {
+      final decoded = jsonDecode(raw) as List<dynamic>;
+      final restored = decoded
+          .whereType<Map>()
+          .map((e) => _ChatMessage.fromJson(Map<String, dynamic>.from(e)))
+          .where((m) => m.text.trim().isNotEmpty)
+          .toList();
+
+      setState(() {
+        _messages
+          ..clear()
+          ..addAll(restored.isEmpty ? [_initialAssistantMessage()] : restored);
+      });
+    } catch (_) {
+      setState(() {
+        _messages
+          ..clear()
+          ..add(_initialAssistantMessage());
+      });
+    }
+
+    _rebuildPendingFromLatestSuggestion();
+  }
+
+  Future<void> _persistChat() async {
+    final prefs = await SharedPreferences.getInstance();
+    final payload = _messages
+        .skip(_messages.length > 120 ? _messages.length - 120 : 0)
+        .map((m) => m.toJson())
+        .toList();
+    await prefs.setString(_chatStorageKey, jsonEncode(payload));
+  }
+
+  Future<void> _resetChat() async {
+    _pendingRoutine = null;
+    _showGoToRoutines = false;
+    setState(() {
+      _messages
+        ..clear()
+        ..add(_initialAssistantMessage());
+    });
+    await _persistChat();
+  }
+
+  void _rebuildPendingFromLatestSuggestion() {
+    for (var i = _messages.length - 1; i >= 0; i--) {
+      final m = _messages[i];
+      if (!m.fromUser && m.zoneId != null) {
+        _setPendingFromMessage(m);
+        return;
+      }
+    }
+  }
+
+  void _setPendingFromMessage(_ChatMessage message) {
+    if (message.zoneId == null) return;
+
+    if (message.suggestedExerciseIds != null && message.suggestedExerciseIds!.isNotEmpty) {
+      final selected = widget.data.exercises
+          .where((e) => message.suggestedExerciseIds!.contains(e.id))
+          .toList();
+      if (selected.isNotEmpty) {
+        _pendingRoutine = _PendingRoutine(
+          nombre: message.suggestedRoutineName ?? 'Rutina guiada',
+          descripcion: 'Generada desde el chat. Ajustable antes de guardar.',
+          exerciseIds: selected.map((e) => e.id).toList(),
+        );
+        return;
+      }
+    }
+
+    _buildPendingRoutineForZone(message.zoneId!);
   }
 
   String _normalize(String value) {
@@ -166,13 +293,18 @@ class _ChatScreenState extends State<ChatScreen> {
       _messages.add(_ChatMessage(fromUser: true, text: text));
       _ctrl.clear();
     });
+    await _persistChat();
 
     String reply;
     String? recommendedZoneId;
+    List<String>? suggestedExerciseIds;
+    String? suggestedRoutineName;
     try {
       final result = await _respondAsync(text);
       reply = result['text'] as String;
       recommendedZoneId = result['zoneId'] as String?;
+      suggestedExerciseIds = (result['suggestedExerciseIds'] as List?)?.map((e) => e.toString()).toList();
+      suggestedRoutineName = result['suggestedRoutineName'] as String?;
     } catch (_) {
       reply = 'He tenido un problema procesando tu mensaje. Inténtalo de nuevo en unos segundos.';
     }
@@ -183,9 +315,12 @@ class _ChatScreenState extends State<ChatScreen> {
         fromUser: false,
         text: reply,
         zoneId: recommendedZoneId,
+        suggestedExerciseIds: suggestedExerciseIds,
+        suggestedRoutineName: suggestedRoutineName,
       ));
       _sending = false;
     });
+    await _persistChat();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollCtrl.hasClients) return;
@@ -210,16 +345,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     if (lower == 'limpiar chat') {
-      _messages
-        ..clear()
-        ..add(
-          _ChatMessage(
-            fromUser: false,
-            text: 'Chat reiniciado. Puedes preguntarme por una zona o pedir una rutina.',
-          ),
-        );
-      _pendingRoutine = null;
-      _showGoToRoutines = false;
+      await _resetChat();
       return {'text': 'Listo, he limpiado la conversación.'};
     }
 
@@ -234,14 +360,24 @@ class _ChatScreenState extends State<ChatScreen> {
     final zoneId = allZoneIds.isNotEmpty ? allZoneIds.first : null;
     if (allZoneIds.isNotEmpty && _looksLikeRoutineIntent(userText)) {
       final text = _buildPendingRoutineForZones(allZoneIds);
-      return {'text': text, 'zoneId': allZoneIds.first};
+      return {
+        'text': text,
+        'zoneId': allZoneIds.first,
+        'suggestedExerciseIds': _pendingRoutine?.exerciseIds,
+        'suggestedRoutineName': _pendingRoutine?.nombre,
+      };
     }
 
     // Backward compatibility con comando explícito.
     if (lower.startsWith('rutina ') || lower.startsWith('crear rutina ') || lower.contains('hazme rutina')) {
       final text = _respondRoutineLocal(userText);
       final responseZoneId = _extractZoneIdFromText(text);
-      return {'text': text, 'zoneId': responseZoneId};
+      return {
+        'text': text,
+        'zoneId': responseZoneId,
+        'suggestedExerciseIds': _pendingRoutine?.exerciseIds,
+        'suggestedRoutineName': _pendingRoutine?.nombre,
+      };
     }
 
     // Save routine if the user confirms.
@@ -285,14 +421,24 @@ class _ChatScreenState extends State<ChatScreen> {
         );
 
         String? responseZoneId = zoneId;
-        if (zoneId != null && _pendingRoutine == null) {
+        if (zoneId != null) {
           _buildPendingRoutineForZone(zoneId);
         }
 
-        return {'text': azureReply, 'zoneId': responseZoneId};
+        return {
+          'text': azureReply,
+          'zoneId': responseZoneId,
+          'suggestedExerciseIds': zoneId == null ? null : _pendingRoutine?.exerciseIds,
+          'suggestedRoutineName': zoneId == null ? null : _pendingRoutine?.nombre,
+        };
       } catch (_) {
         final text = _respondDemo(userText);
-        return {'text': text, 'zoneId': zoneId};
+        return {
+          'text': text,
+          'zoneId': zoneId,
+          'suggestedExerciseIds': zoneId == null ? null : _pendingRoutine?.exerciseIds,
+          'suggestedRoutineName': zoneId == null ? null : _pendingRoutine?.nombre,
+        };
       }
     }
 
@@ -414,13 +560,19 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Widget _buildRecommendationCard(BuildContext context, String zoneId) {
+  Widget _buildRecommendationCard(BuildContext context, _ChatMessage message) {
+    final zoneId = message.zoneId!;
     final zone = widget.data.zones.firstWhere((z) => z.id == zoneId);
-    final exercises = widget.data.exercises
-        .where((e) => e.zonaId == zoneId)
-        .toList()
-      ..shuffle();
-    final picked = exercises.take(5).toList();
+    List<Exercise> picked;
+    if (message.suggestedExerciseIds != null && message.suggestedExerciseIds!.isNotEmpty) {
+      picked = widget.data.exercises.where((e) => message.suggestedExerciseIds!.contains(e.id)).toList();
+    } else {
+      final exercises = widget.data.exercises
+          .where((e) => e.zonaId == zoneId)
+          .toList()
+        ..shuffle();
+      picked = exercises.take(5).toList();
+    }
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 520),
@@ -477,11 +629,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 onPressed: _sending
                     ? null
                     : () {
-                  if (_pendingRoutine == null || _pendingRoutine!.exerciseIds.isEmpty) {
-                    _buildPendingRoutineForZone(zoneId);
-                    setState(() {});
-                  }
-                },
+                        _setPendingFromMessage(message);
+                        _runPendingAction(_savePendingRoutine);
+                      },
                 icon: const Icon(Icons.save, size: 18),
                 label: const Text('Guardar rutina'),
               ),
@@ -489,11 +639,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 onPressed: _sending
                     ? null
                     : () {
-                  if (_pendingRoutine == null || _pendingRoutine!.exerciseIds.isEmpty) {
-                    _buildPendingRoutineForZone(zoneId);
-                  }
-                  _runPendingAction(_editAndSavePendingRoutine);
-                },
+                        _setPendingFromMessage(message);
+                        _runPendingAction(_editAndSavePendingRoutine);
+                      },
                 icon: const Icon(Icons.edit, size: 18),
                 label: const Text('Editar'),
               ),
@@ -535,6 +683,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages.add(_ChatMessage(fromUser: false, text: reply));
         _sending = false;
       });
+      await _persistChat();
     } else {
       setState(() => _sending = false);
     }
@@ -606,7 +755,39 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Asistente (IA)')),
+      appBar: AppBar(
+        title: const Text('Asistente (IA)'),
+        actions: [
+          IconButton(
+            tooltip: 'Nuevo chat',
+            onPressed: _sending
+                ? null
+                : () async {
+                    final clear = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text('Nuevo chat'),
+                        content: const Text('Se borrará la conversación actual. ¿Quieres continuar?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancelar'),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Empezar nuevo'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (clear == true) {
+                      await _resetChat();
+                    }
+                  },
+            icon: const Icon(Icons.add_comment_outlined),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -638,7 +819,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     if (!m.fromUser && m.zoneId != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 12, left: 0, right: 0),
-                        child: _buildRecommendationCard(context, m.zoneId!),
+                        child: _buildRecommendationCard(context, m),
                       ),
                   ],
                 );

@@ -26,6 +26,15 @@ class MainMenuScreen extends StatelessWidget {
   }
 
   Future<void> _openChat(BuildContext context) async {
+    if (isGuest) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('El chat de IA requiere iniciar sesión. En modo invitado está desactivado.'),
+        ),
+      );
+      return;
+    }
+
     final accepted = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
