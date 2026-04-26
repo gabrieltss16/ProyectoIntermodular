@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/catalog_service.dart';
 import '../services/auth_service.dart';
+import '../services/email_validator.dart';
 import '../services/firebase_bootstrap.dart';
 import 'main_menu_screen.dart';
 import 'register_screen.dart';
@@ -98,6 +99,27 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _loginWithGoogle() async {
+    setState(() => _loading = true);
+    try {
+      await FirebaseBootstrap.tryInit();
+      if (!FirebaseBootstrap.isReady) {
+        await _showFirebaseNotReady();
+        return;
+      }
+
+      await AuthService().signInWithGoogle();
+      await _enterMenu(isGuest: false);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error con Google: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -154,11 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               prefixIcon: Icon(Icons.alternate_email),
                             ),
                             keyboardType: TextInputType.emailAddress,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) return 'Introduce un email.';
-                              if (!v.contains('@')) return 'Email no válido.';
-                              return null;
-                            },
+                            validator: AppEmailValidator.validate,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
@@ -184,6 +202,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                     child: CircularProgressIndicator(strokeWidth: 2),
                                   )
                                 : const Text('Entrar'),
+                          ),
+                          const SizedBox(height: 10),
+                          OutlinedButton.icon(
+                            onPressed: _loading ? null : _loginWithGoogle,
+                            icon: const Icon(Icons.account_circle_outlined),
+                            label: const Text('Continuar con Google'),
                           ),
                           const SizedBox(height: 10),
                           OutlinedButton(

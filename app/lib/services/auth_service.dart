@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'firebase_bootstrap.dart';
 
@@ -11,6 +12,10 @@ class AppUser {
 }
 
 class AuthService {
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: const ['email'],
+  );
+
   Future<void> _ensureUserDoc({required AppUser user}) async {
     if (!FirebaseBootstrap.isReady) return;
 
@@ -90,6 +95,35 @@ class AuthService {
     return user;
   }
 
+  Future<AppUser> signInWithGoogle() async {
+    if (!FirebaseBootstrap.isReady) {
+      throw StateError('Firebase no está configurado todavía.');
+    }
+
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) {
+      throw StateError('Inicio de sesión con Google cancelado.');
+    }
+
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    if (googleAuth.idToken == null) {
+      throw StateError('No se pudo obtener el token de Google.');
+    }
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final cred = await FirebaseAuth.instance.signInWithCredential(credential);
+    final u = cred.user;
+    if (u == null) throw StateError('Login con Google fallido.');
+
+    final user = AppUser(uid: u.uid, email: u.email);
+    await _ensureUserDoc(user: user);
+    return user;
+  }
+
   Future<void> sendEmailVerification() async {
     if (!FirebaseBootstrap.isReady) {
       throw StateError('Firebase no está configurado todavía.');
@@ -114,6 +148,11 @@ class AuthService {
 
   Future<void> signOut() async {
     if (!FirebaseBootstrap.isReady) return;
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {
+      // Ignored: logout still continues with Firebase signOut.
+    }
     await FirebaseAuth.instance.signOut();
   }
 }

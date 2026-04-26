@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
+import '../services/email_validator.dart';
 import '../services/firebase_bootstrap.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -144,11 +145,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               prefixIcon: Icon(Icons.alternate_email),
                             ),
                             keyboardType: TextInputType.emailAddress,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) return 'Introduce un email.';
-                              if (!v.contains('@')) return 'Email no válido.';
-                              return null;
-                            },
+                            validator: AppEmailValidator.validate,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
