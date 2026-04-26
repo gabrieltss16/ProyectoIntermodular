@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../models/routine.dart';
+import '../models/zone.dart';
 import '../services/catalog_service.dart';
 import '../services/routine_repository.dart';
 import 'routine_detail_screen.dart';
@@ -11,21 +12,38 @@ import 'routine_editor_screen.dart';
 class RoutinesScreen extends StatefulWidget {
   final CatalogData data;
   final String? uid;
+  final bool isGuest;
 
-  const RoutinesScreen({super.key, required this.data, required this.uid});
+  const RoutinesScreen({
+    super.key,
+    required this.data,
+    required this.uid,
+    this.isGuest = false,
+  });
 
   @override
   State<RoutinesScreen> createState() => _RoutinesScreenState();
 }
 
-class _RoutinesScreenState extends State<RoutinesScreen> {
+class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStateMixin {
   final _repo = RoutineRepository();
   late Future<List<Routine>> _future;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _future = _repo.list(uid: widget.uid);
+    _tabController = TabController(length: widget.isGuest ? 1 : 2, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _reload() async {
@@ -34,7 +52,42 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
     });
   }
 
+  List<String> _pickExercisesForZone(String zoneId) {
+    final candidates = widget.data.exercises.where((e) => e.zonaId == zoneId).toList();
+    if (candidates.isEmpty) return <String>[];
+
+    candidates.sort((a, b) => a.nombre.compareTo(b.nombre));
+    final count = min(candidates.length, 5);
+    return candidates.take(count).map((e) => e.id).toList();
+  }
+
+  Routine _presetRoutineForZone(Zone zone) {
+    final exerciseIds = _pickExercisesForZone(zone.id);
+    return Routine.create(
+      nombre: 'Rutina predeterminada · ${zone.nombre}',
+      descripcion: 'Rutina base de la app para trabajar ${zone.nombre.toLowerCase()}.',
+      creadaPorIA: false,
+      exerciseIds: exerciseIds,
+    );
+  }
+
+  Future<void> _openPreset(Zone zone) async {
+    final routine = _presetRoutineForZone(zone);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RoutineDetailScreen(
+          data: widget.data,
+          routine: routine,
+          sourceLabel: 'Predeterminada',
+        ),
+      ),
+    );
+  }
+
   Future<void> _createManual() async {
+    if (widget.isGuest) return;
+
     final routine = await Navigator.push<Routine?>(
       context,
       MaterialPageRoute(
@@ -49,69 +102,6 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
     if (routine == null) return;
     await _repo.upsert(uid: widget.uid, routine: routine);
     await _reload();
-  }
-
-  Future<void> _createIA() async {
-    final zone = await showDialog<_ZonePick?>(
-      context: context,
-      builder: (context) {
-        return SimpleDialog(
-          title: const Text('Generar rutina por IA'),
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Se genera una rutina automática equilibrada por zona (modo local).',
-              ),
-            ),
-            const SizedBox(height: 8),
-            ...widget.data.zones.map(
-              (z) => SimpleDialogOption(
-                onPressed: () => Navigator.pop(context, _ZonePick(z.id, z.nombre)),
-                child: Text(z.nombre),
-              ),
-            ),
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (zone == null) return;
-
-    final candidates = widget.data.exercises.where((e) => e.zonaId == zone.id).toList();
-    if (candidates.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No hay ejercicios en esa zona.')),
-      );
-      return;
-    }
-
-    candidates.shuffle(Random());
-    final targetCount = min(candidates.length, 4 + Random().nextInt(3)); // 4 a 6 ejercicios
-    final chosen = candidates.take(targetCount).map((e) => e.id).toList();
-
-    final routine = Routine.create(
-      nombre: 'Rutina ${zone.name}',
-      descripcion: 'Generada automáticamente por IA (modo local).',
-      creadaPorIA: true,
-      exerciseIds: chosen,
-    );
-
-    await _repo.upsert(uid: widget.uid, routine: routine);
-    await _reload();
-
-    if (!mounted) return;
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => RoutineDetailScreen(data: widget.data, routine: routine),
-      ),
-    );
   }
 
   Future<void> _open(Routine routine) async {
@@ -158,49 +148,102 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mis rutinas'),
-        actions: [
-          IconButton(
-            tooltip: 'Generar por IA',
-            onPressed: _createIA,
-            icon: const Icon(Icons.auto_awesome),
+  Widget _buildPresetTab() {
+    final zones = widget.data.zones;
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Rutinas predeterminadas',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  widget.isGuest
+                      ? 'Solo puedes ver esta sección en modo invitado.'
+                      : 'Rutinas base por zona para empezar rápido. Puedes abrir cada una y ver sus ejercicios.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
-      body: FutureBuilder<List<Routine>>(
-        future: _future,
-        builder: (context, snap) {
-          final routines = snap.data;
-          if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+        ),
+        const SizedBox(height: 12),
+        ...zones.map((zone) {
+          final routine = _presetRoutineForZone(zone);
+          String? firstExerciseName;
+          for (final exercise in widget.data.exercises) {
+            if (routine.exerciseIds.contains(exercise.id)) {
+              firstExerciseName = exercise.nombre;
+              break;
+            }
           }
 
-          if (snap.hasError) {
-            return Center(child: Text('Error: ${snap.error}'));
-          }
-
-          if (routines == null || routines.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text('Aún no tienes rutinas. Crea una con el botón +.'),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Card(
+              child: ListTile(
+                title: Text(zone.nombre),
+                subtitle: Text(
+                  routine.exerciseIds.isEmpty
+                      ? 'Sin ejercicios disponibles todavía.'
+                      : '${routine.exerciseIds.length} ejercicios base · ${firstExerciseName ?? 'Rutina base'}',
+                ),
+                leading: CircleAvatar(
+                  child: Text(
+                    zone.nombre.isNotEmpty ? zone.nombre[0].toUpperCase() : '?',
+                  ),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _openPreset(zone),
               ),
-            );
-          }
+            ),
+          );
+        }),
+      ],
+    );
+  }
 
-          return RefreshIndicator(
-            onRefresh: _reload,
-            child: ListView.separated(
-              itemCount: routines.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, i) {
-                final r = routines[i];
-                final subtitle = r.creadaPorIA ? 'Generada por IA' : 'Manual';
-                return ListTile(
+  Widget _buildUserTab() {
+    return FutureBuilder<List<Routine>>(
+      future: _future,
+      builder: (context, snap) {
+        final routines = snap.data;
+        if (snap.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snap.hasError) {
+          return Center(child: Text('Error: ${snap.error}'));
+        }
+
+        if (routines == null || routines.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Text('Aún no tienes rutinas. Pulsa + para crear una.'),
+            ),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: _reload,
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: routines.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 8),
+            itemBuilder: (context, i) {
+              final r = routines[i];
+              final subtitle = r.creadaPorIA ? 'Creada desde IA' : 'Manual';
+              return Card(
+                child: ListTile(
                   title: Text(r.nombre),
                   subtitle: Text('$subtitle · ${r.exerciseIds.length} ejercicios'),
                   trailing: Wrap(
@@ -219,23 +262,47 @@ class _RoutinesScreenState extends State<RoutinesScreen> {
                     ],
                   ),
                   onTap: () => _open(r),
-                );
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _createManual,
-        child: const Icon(Icons.add),
-      ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
-}
 
-class _ZonePick {
-  final String id;
-  final String name;
+  @override
+  Widget build(BuildContext context) {
+    final showUserTab = !widget.isGuest;
 
-  _ZonePick(this.id, this.name);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Rutinas'),
+        bottom: showUserTab
+            ? TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: 'Predeterminadas'),
+                  Tab(text: 'Mis rutinas'),
+                ],
+              )
+            : null,
+      ),
+      body: showUserTab
+          ? TabBarView(
+              controller: _tabController,
+              children: [
+                _buildPresetTab(),
+                _buildUserTab(),
+              ],
+            )
+          : _buildPresetTab(),
+      floatingActionButton: showUserTab && _tabController.index == 1
+          ? FloatingActionButton(
+              onPressed: _createManual,
+              child: const Icon(Icons.add),
+            )
+          : null,
+    );
+  }
 }

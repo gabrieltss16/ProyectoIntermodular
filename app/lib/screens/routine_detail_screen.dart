@@ -7,11 +7,13 @@ import '../services/catalog_service.dart';
 class RoutineDetailScreen extends StatelessWidget {
   final CatalogData data;
   final Routine routine;
+  final String? sourceLabel;
 
   const RoutineDetailScreen({
     super.key,
     required this.data,
     required this.routine,
+    this.sourceLabel,
   });
 
   Widget _exerciseThumb(BuildContext context, Exercise exercise) {
@@ -54,7 +56,11 @@ class RoutineDetailScreen extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              Chip(label: Text(routine.creadaPorIA ? 'IA (demo)' : 'Manual')),
+              Chip(
+                label: Text(
+                  sourceLabel ?? (routine.creadaPorIA ? 'IA (demo)' : 'Manual'),
+                ),
+              ),
               Chip(label: Text('${exercises.length} ejercicios')),
             ],
           ),

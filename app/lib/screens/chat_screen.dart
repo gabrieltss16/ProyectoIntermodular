@@ -358,7 +358,13 @@ class _ChatScreenState extends State<ChatScreen> {
     // Prioridad: si parece intención de rutina y detectamos zona(s), generamos pendiente local.
     final allZoneIds = _extractAllZoneIdsFromText(userText);
     final zoneId = allZoneIds.isNotEmpty ? allZoneIds.first : null;
-    if (allZoneIds.isNotEmpty && _looksLikeRoutineIntent(userText)) {
+    final routineIntent =
+        _looksLikeRoutineIntent(userText) ||
+        lower.contains('dolor') ||
+        lower.contains('molest') ||
+        lower.contains('lesion') ||
+        lower.contains('recuper');
+    if (allZoneIds.isNotEmpty && routineIntent) {
       final text = _buildPendingRoutineForZones(allZoneIds);
       return {
         'text': text,
@@ -415,21 +421,32 @@ class _ChatScreenState extends State<ChatScreen> {
           });
         }
 
-        var azureReply = await AzureOpenAIService(data: widget.data).reply(
+        final azureReply = await AzureOpenAIService(data: widget.data).reply(
           userText: userText,
           history: history,
         );
 
-        String? responseZoneId = zoneId;
-        if (zoneId != null) {
+        final responseZoneIds = _extractAllZoneIdsFromText(azureReply);
+        final shouldBuildFromAzure = responseZoneIds.isNotEmpty &&
+            (azureReply.toLowerCase().contains('rutina') ||
+                azureReply.toLowerCase().contains('ejercicios') ||
+                azureReply.toLowerCase().contains('suger'));
+
+        if (shouldBuildFromAzure) {
+          _buildPendingRoutineForZones(responseZoneIds);
+        } else if (zoneId != null) {
           _buildPendingRoutineForZone(zoneId);
         }
+
+        final responseZoneId = responseZoneIds.isNotEmpty
+            ? responseZoneIds.first
+            : zoneId;
 
         return {
           'text': azureReply,
           'zoneId': responseZoneId,
-          'suggestedExerciseIds': zoneId == null ? null : _pendingRoutine?.exerciseIds,
-          'suggestedRoutineName': zoneId == null ? null : _pendingRoutine?.nombre,
+          'suggestedExerciseIds': responseZoneId == null ? null : _pendingRoutine?.exerciseIds,
+          'suggestedRoutineName': responseZoneId == null ? null : _pendingRoutine?.nombre,
         };
       } catch (_) {
         final text = _respondDemo(userText);
@@ -443,7 +460,17 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     final text = _respondDemo(userText);
-    return {'text': text, 'zoneId': zoneId};
+    final responseZoneIds = _extractAllZoneIdsFromText(text);
+    final shouldBuildFromDemo = responseZoneIds.isNotEmpty && text.toLowerCase().contains('rutina');
+    if (shouldBuildFromDemo) {
+      _buildPendingRoutineForZones(responseZoneIds);
+    }
+    return {
+      'text': text,
+      'zoneId': responseZoneIds.isNotEmpty ? responseZoneIds.first : zoneId,
+      'suggestedExerciseIds': responseZoneIds.isNotEmpty ? _pendingRoutine?.exerciseIds : null,
+      'suggestedRoutineName': responseZoneIds.isNotEmpty ? _pendingRoutine?.nombre : null,
+    };
   }
 
   String _respondRoutineLocal(String userText) {
