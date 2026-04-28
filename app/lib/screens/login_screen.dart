@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Iniciar sesión')),
+      appBar: AppBar(title: const Text('INICIAR SESION')),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

@@ -30,7 +30,7 @@ class ZonesScreen extends StatelessWidget {
 
     if (zones.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Zonas articulares')),
+        appBar: AppBar(title: const Text('EXPLORAR ZONAS')),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -57,7 +57,7 @@ class ZonesScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Zonas articulares')),
+      appBar: AppBar(title: const Text('EXPLORAR ZONAS')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

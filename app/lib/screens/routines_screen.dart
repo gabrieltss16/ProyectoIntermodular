@@ -425,10 +425,14 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
                 icon: const Icon(Icons.arrow_back),
               )
             : null,
-        title: const Text('Rutinas'),
+        title: const Text('RUTINAS'),
         bottom: showUserTab
             ? TabBar(
                 controller: _tabController,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white70,
+                indicatorColor: Colors.white,
+                dividerColor: Colors.transparent,
                 tabs: const [
                   Tab(text: 'Mis rutinas'),
                   Tab(text: 'Predeterminadas'),

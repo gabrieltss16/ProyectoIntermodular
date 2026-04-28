@@ -94,7 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear cuenta')),
+      appBar: AppBar(title: const Text('CREAR CUENTA')),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

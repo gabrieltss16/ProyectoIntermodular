@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
 import '../services/catalog_service.dart';
 import '../services/user_profile_repository.dart';
-import '../services/auth_service.dart';
-import 'home_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final CatalogData data;
@@ -26,7 +24,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _nombreCtrl = TextEditingController();
   final _edadCtrl = TextEditingController();
   final _objetivosCtrl = TextEditingController();
-  final _nivelExperienciaCtrl = TextEditingController();
   String? _zonaPrincipalId;
   String? _nivelExperienciaValue = 'principiante';
 
@@ -38,38 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nombreCtrl.dispose();
     _edadCtrl.dispose();
     _objetivosCtrl.dispose();
-    _nivelExperienciaCtrl.dispose();
     super.dispose();
-  }
-
-  Future<void> _logout() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Cerrar sesión'),
-        content: const Text('¿Deseas cerrar la sesión?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Cerrar sesión'),
-          ),
-        ],
-      ),
-    );
-
-    if (ok == true) {
-      await AuthService().signOut();
-      if (!mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-        (route) => false,
-      );
-    }
   }
 
   Future<UserProfile> _load() async {
@@ -134,7 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi perfil'),
+        title: const Text('MI PERFIL'),
       ),
       body: FutureBuilder<UserProfile>(
         future: _load(),
@@ -321,45 +287,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 )
                               : const Text('Guardar cambios'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundColor: Colors.red.withValues(alpha: 0.2),
-                              child: const Icon(Icons.logout, color: Colors.red, size: 20),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Sesión',
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        OutlinedButton(
-                          onPressed: _logout,
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.red),
-                            minimumSize: const Size.fromHeight(48),
-                          ),
-                          child: const Text(
-                            'Cerrar sesión',
-                            style: TextStyle(color: Colors.red),
-                          ),
                         ),
                       ],
                     ),

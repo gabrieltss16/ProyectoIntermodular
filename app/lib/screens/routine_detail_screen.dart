@@ -107,11 +107,7 @@ class RoutineDetailScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          routine.nombre,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
+        title: const Text('DETALLE RUTINA'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

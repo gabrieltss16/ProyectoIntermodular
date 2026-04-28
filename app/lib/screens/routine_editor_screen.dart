@@ -111,7 +111,7 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.initial == null ? 'Nueva rutina' : 'Editar rutina'),
+        title: Text(widget.initial == null ? 'NUEVA RUTINA' : 'EDITAR RUTINA'),
         actions: [
           IconButton(onPressed: _save, icon: const Icon(Icons.check)),
         ],

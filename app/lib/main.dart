@@ -35,6 +35,12 @@ class MyApp extends StatelessWidget {
         centerTitle: false,
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.1),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 19,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.1,
+        ),
       ),
       cardTheme: CardThemeData(
         elevation: 0,

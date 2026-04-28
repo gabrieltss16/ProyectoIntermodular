@@ -12,7 +12,6 @@ import '../services/firebase_bootstrap.dart';
 import '../services/routine_repository.dart';
 import '../models/routine.dart';
 import 'routine_editor_screen.dart';
-import 'routines_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final CatalogData data;
@@ -687,24 +686,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> _openMyRoutines() async {
-    final firebaseReady = FirebaseBootstrap.isReady;
-    final uid = firebaseReady ? AuthService().currentUser()?.uid : null;
-    if (firebaseReady && uid == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Inicia sesión para ver tus rutinas.')),
-      );
-      return;
-    }
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => RoutinesScreen(data: widget.data, uid: uid),
-      ),
-    );
-  }
-
   Future<void> _runPendingAction(Future<String> Function() action) async {
     if (_sending) return;
 
@@ -793,7 +774,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Asistente (IA)'),
+        title: const Text('ASISTENTE IA'),
         actions: [
           IconButton(
             tooltip: 'Nuevo chat',
@@ -907,22 +888,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Tooltip(
-                      message: 'Nuevo chat',
-                      child: FilledButton(
-                        onPressed: _sending ? null : _resetChat,
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(52, 52),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          padding: EdgeInsets.zero,
-                          backgroundColor: Theme.of(context).colorScheme.secondary,
-                        ),
-                        child: const Icon(Icons.add_circle_outline),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
                     FilledButton(
                       onPressed: _sending ? null : _send,
                       style: FilledButton.styleFrom(

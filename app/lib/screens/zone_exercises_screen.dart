@@ -166,7 +166,7 @@ class ZoneExercisesScreen extends StatelessWidget {
 
     if (exercises.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(zoneName)),
+        appBar: AppBar(title: Text('EJERCICIOS · ${zoneName.toUpperCase()}')),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -193,7 +193,7 @@ class ZoneExercisesScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(zoneName)),
+      appBar: AppBar(title: Text('EJERCICIOS · ${zoneName.toUpperCase()}')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
