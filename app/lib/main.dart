@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 
 import 'services/firebase_bootstrap.dart';
 
+const _primaryBlue = Color(0xFF047CE3);
+const _secondaryBlue = Color(0xFF5569A4);
+const _deepBlue = Color(0xFF020F70);
+const _backgroundBlue = Color(0xFFEDEEF4);
+const _surfaceBlue = Color(0xFFFFFFFF);
+const _softBlue = Color(0xFFDAE0EB);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FirebaseBootstrap.tryInit();
@@ -14,23 +21,45 @@ class MyApp extends StatelessWidget {
 
   ThemeData _buildTheme() {
     final scheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF0052FF),
+      seedColor: _primaryBlue,
       brightness: Brightness.light,
+    ).copyWith(
+      primary: _primaryBlue,
+      onPrimary: Colors.white,
+      secondary: _secondaryBlue,
+      onSecondary: Colors.white,
+      tertiary: _deepBlue,
+      onTertiary: Colors.white,
+      surface: _surfaceBlue,
+      onSurface: _deepBlue,
+      primaryContainer: _softBlue,
+      onPrimaryContainer: _deepBlue,
+      secondaryContainer: _softBlue,
+      onSecondaryContainer: _deepBlue,
+      tertiaryContainer: _softBlue,
+      onTertiaryContainer: _deepBlue,
+      onSurfaceVariant: _secondaryBlue,
+      surfaceContainerHighest: _softBlue,
+      outlineVariant: const Color(0xFFB8C3D8),
+      inverseSurface: _deepBlue,
+      onInverseSurface: Colors.white,
+      surfaceTint: _primaryBlue,
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme.copyWith(
-        primary: const Color(0xFF0052FF),
-        secondary: const Color(0xFF1E88E5),
+        primary: _primaryBlue,
+        secondary: _secondaryBlue,
+        tertiary: _deepBlue,
       ),
-      scaffoldBackgroundColor: const Color(0xFFF5F8FF),
+      scaffoldBackgroundColor: _backgroundBlue,
       textTheme: Typography.blackMountainView.apply(
-        bodyColor: const Color(0xFF0F172A),
-        displayColor: const Color(0xFF0F172A),
+        bodyColor: _deepBlue,
+        displayColor: _deepBlue,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: const Color(0xFF0052FF),
+        backgroundColor: _primaryBlue,
         foregroundColor: Colors.white,
         centerTitle: false,
         elevation: 2,
@@ -80,7 +109,7 @@ class MyApp extends StatelessWidget {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
-        indicatorColor: const Color(0xFF0052FF).withValues(alpha: 0.15),
+        indicatorColor: _primaryBlue.withValues(alpha: 0.15),
         iconTheme: const WidgetStatePropertyAll(IconThemeData(size: 28)),
         labelTextStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         height: 80,

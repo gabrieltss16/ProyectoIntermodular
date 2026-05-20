@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/asset_helper.dart';
 
 import '../services/catalog_service.dart';
 import '../services/auth_service.dart';
@@ -23,17 +24,18 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   int _selectedIndex = 0;
   late final PageController _pageController;
 
-  Widget _navIcon({
-    required int index,
-    required IconData inactive,
-    required IconData active,
-  }) {
+  Widget _navAssetIcon({required int index, required String assetPath}) {
     final selected = _selectedIndex == index;
     return AnimatedScale(
       scale: selected ? 1.08 : 1.0,
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOutCubic,
-      child: Icon(selected ? active : inactive),
+      child: Image.asset(
+        assetKey(assetPath),
+        width: 24,
+        height: 24,
+        fit: BoxFit.contain,
+      ),
     );
   }
 
@@ -97,30 +99,83 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   @override
   Widget build(BuildContext context) {
     final uid = (!widget.isGuest && FirebaseBootstrap.isReady) ? AuthService().currentUser()?.uid : null;
+
+    Widget buildHeader() {
+      return SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      assetKey('images/logo/logoapp.jpg'),
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'FisioIA',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                      Text(
+                        widget.isGuest ? 'Modo invitado' : 'Tu espacio de recuperación',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     if (widget.isGuest) {
       return Scaffold(
-        body: PageView(
-          controller: _pageController,
-          physics: const NeverScrollableScrollPhysics(),
-          onPageChanged: (index) {
-            if (!mounted) return;
-            setState(() => _selectedIndex = index);
-          },
+        body: Column(
           children: [
-            ZonesScreen(data: widget.data, uid: null),
-            RoutinesScreen(
-              data: widget.data,
-              uid: null,
-              isGuest: true,
-              onGuestBack: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HomeScreen()),
-                  (route) => false,
-                );
-              },
+            buildHeader(),
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                onPageChanged: (index) {
+                  if (!mounted) return;
+                  setState(() => _selectedIndex = index);
+                },
+                children: [
+                  ZonesScreen(data: widget.data, uid: null),
+                  RoutinesScreen(
+                    data: widget.data,
+                    uid: null,
+                    isGuest: true,
+                    onGuestBack: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        (route) => false,
+                      );
+                    },
+                  ),
+                  _loginRequiredPage(),
+                ],
+              ),
             ),
-            _loginRequiredPage(),
           ],
         ),
         bottomNavigationBar: NavigationBar(
@@ -141,18 +196,18 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: [
             NavigationDestination(
-              icon: _navIcon(index: 0, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
-              selectedIcon: _navIcon(index: 0, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
+              icon: _navAssetIcon(index: 0, assetPath: 'images/iconos/diana.png'),
+              selectedIcon: _navAssetIcon(index: 0, assetPath: 'images/iconos/diana.png'),
               label: 'Explorar',
             ),
             NavigationDestination(
-              icon: _navIcon(index: 1, inactive: Icons.view_agenda_outlined, active: Icons.view_agenda),
-              selectedIcon: _navIcon(index: 1, inactive: Icons.view_agenda_outlined, active: Icons.view_agenda),
+              icon: _navAssetIcon(index: 1, assetPath: 'images/iconos/libroEjercicios.png'),
+              selectedIcon: _navAssetIcon(index: 1, assetPath: 'images/iconos/libroEjercicios.png'),
               label: 'Rutinas',
             ),
             NavigationDestination(
-              icon: _navIcon(index: 2, inactive: Icons.logout_outlined, active: Icons.logout),
-              selectedIcon: _navIcon(index: 2, inactive: Icons.logout_outlined, active: Icons.logout),
+              icon: _navAssetIcon(index: 2, assetPath: 'images/iconos/salida.png'),
+              selectedIcon: _navAssetIcon(index: 2, assetPath: 'images/iconos/salida.png'),
               label: 'Salir',
             ),
           ],
@@ -171,14 +226,21 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     ];
 
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        onPageChanged: (index) {
-          if (!mounted) return;
-          setState(() => _selectedIndex = index);
-        },
-        children: pages,
+      body: Column(
+        children: [
+          buildHeader(),
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              onPageChanged: (index) {
+                if (!mounted) return;
+                setState(() => _selectedIndex = index);
+              },
+              children: pages,
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
@@ -198,28 +260,28 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: [
           NavigationDestination(
-            icon: _navIcon(index: 0, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
-            selectedIcon: _navIcon(index: 0, inactive: Icons.directions_run_outlined, active: Icons.directions_run),
+            icon: _navAssetIcon(index: 0, assetPath: 'images/iconos/diana.png'),
+            selectedIcon: _navAssetIcon(index: 0, assetPath: 'images/iconos/diana.png'),
             label: 'Explorar',
           ),
           NavigationDestination(
-            icon: _navIcon(index: 1, inactive: Icons.view_agenda_outlined, active: Icons.view_agenda),
-            selectedIcon: _navIcon(index: 1, inactive: Icons.view_agenda_outlined, active: Icons.view_agenda),
+            icon: _navAssetIcon(index: 1, assetPath: 'images/iconos/libroEjercicios.png'),
+            selectedIcon: _navAssetIcon(index: 1, assetPath: 'images/iconos/libroEjercicios.png'),
             label: 'Rutinas',
           ),
           NavigationDestination(
-            icon: _navIcon(index: 2, inactive: Icons.smart_toy_outlined, active: Icons.smart_toy),
-            selectedIcon: _navIcon(index: 2, inactive: Icons.smart_toy_outlined, active: Icons.smart_toy),
+            icon: _navAssetIcon(index: 2, assetPath: 'images/iconos/chat.png'),
+            selectedIcon: _navAssetIcon(index: 2, assetPath: 'images/iconos/chat.png'),
             label: 'IA',
           ),
           NavigationDestination(
-            icon: _navIcon(index: 3, inactive: Icons.person_outline, active: Icons.person),
-            selectedIcon: _navIcon(index: 3, inactive: Icons.person_outline, active: Icons.person),
+            icon: _navAssetIcon(index: 3, assetPath: 'images/iconos/persona2.png'),
+            selectedIcon: _navAssetIcon(index: 3, assetPath: 'images/iconos/persona2.png'),
             label: 'Perfil',
           ),
           NavigationDestination(
-            icon: _navIcon(index: 4, inactive: Icons.logout_outlined, active: Icons.logout),
-            selectedIcon: _navIcon(index: 4, inactive: Icons.logout_outlined, active: Icons.logout),
+            icon: _navAssetIcon(index: 4, assetPath: 'images/iconos/salida.png'),
+            selectedIcon: _navAssetIcon(index: 4, assetPath: 'images/iconos/salida.png'),
             label: 'Salir',
           ),
         ],

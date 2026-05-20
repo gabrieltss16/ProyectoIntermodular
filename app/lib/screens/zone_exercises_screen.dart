@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/asset_helper.dart';
 import '../models/routine.dart';
 import '../services/catalog_service.dart';
 import '../services/routine_repository.dart';
@@ -99,7 +100,7 @@ class ZoneExercisesScreen extends StatelessWidget {
                             ),
                           )
                         : Image.asset(
-                            exercise.imagen!,
+                          assetKey(exercise.imagen!),
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(

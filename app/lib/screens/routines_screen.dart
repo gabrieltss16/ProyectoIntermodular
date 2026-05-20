@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import '../utils/asset_helper.dart';
 
 import '../models/routine.dart';
 import '../models/zone.dart';
@@ -73,6 +74,23 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
     );
   }
 
+  String _zoneIconAsset(String zoneName) {
+    final normalized = zoneName.toLowerCase();
+    if (normalized.contains('rodill')) return 'images/iconos/rodilla.png';
+    if (normalized.contains('homb')) return 'images/iconos/hombro.png';
+    if (normalized.contains('cerv')) return 'images/iconos/cervical.png';
+    if (normalized.contains('lumb')) return 'images/iconos/lumbar.png';
+    if (normalized.contains('cadera')) return 'images/iconos/cadera.png';
+    if (normalized.contains('codo')) return 'images/iconos/codo.png';
+    if (normalized.contains('muñ') || normalized.contains('munec') || normalized.contains('muñec')) {
+      return 'images/iconos/muneca.png';
+    }
+    if (normalized.contains('tobill')) return 'images/iconos/tobillo.png';
+    if (normalized.contains('dors')) return 'images/iconos/dorsales.png';
+    if (normalized.contains('mano')) return 'images/iconos/manoConAlgo.png';
+    return 'images/iconos/cuerpo.png';
+  }
+
   Future<void> _openPreset(Zone zone) async {
     final routine = _presetRoutineForZone(zone);
     await Navigator.push(
@@ -103,6 +121,25 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
 
     if (routine == null) return;
     await _repo.upsert(uid: widget.uid, routine: routine);
+    await _reload();
+  }
+
+  Future<void> _editRoutine(Routine routine) async {
+    if (widget.isGuest) return;
+
+    final edited = await Navigator.push<Routine?>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RoutineEditorScreen(
+          data: widget.data,
+          initial: routine,
+          creadaPorIA: routine.creadaPorIA,
+        ),
+      ),
+    );
+
+    if (edited == null) return;
+    await _repo.upsert(uid: widget.uid, routine: edited);
     await _reload();
   }
 
@@ -222,6 +259,7 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
 
   Widget _buildPresetTab() {
     final zones = widget.data.zones;
+    final scheme = Theme.of(context).colorScheme;
 
     if (zones.isEmpty) {
       return _emptyState(
@@ -237,19 +275,39 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  'Rutinas predeterminadas',
-                  style: Theme.of(context).textTheme.titleMedium,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    color: scheme.primaryContainer,
+                    padding: const EdgeInsets.all(8),
+                       child: Image.asset(
+                         assetKey('images/iconos/libroEjercicios.png'),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.isGuest
-                      ? 'Solo puedes ver esta sección en modo invitado.'
-                      : 'Rutinas base por zona para empezar rápido. Puedes abrir cada una y ver sus ejercicios.',
-                  style: Theme.of(context).textTheme.bodySmall,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Rutinas predeterminadas',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.isGuest
+                            ? 'Solo puedes ver esta sección en modo invitado.'
+                            : 'Rutinas base por zona para empezar rápido. Puedes abrir cada una y ver sus ejercicios.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -281,9 +339,14 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
                         : '${routine.exerciseIds.length} ejercicios base · ${firstExerciseName ?? 'Rutina base'}',
                   ),
                   leading: CircleAvatar(
-                    child: Text(
-                      zone.nombre.isNotEmpty ? zone.nombre[0].toUpperCase() : '?',
-                    ),
+                    backgroundColor: scheme.primaryContainer,
+                    child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Image.asset(
+                          assetKey(_zoneIconAsset(zone.nombre)),
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _openPreset(zone),
@@ -384,15 +447,50 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
                                     ],
                                   ),
                                 ),
-                                PopupMenuButton(
+                                PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    switch (value) {
+                                      case 'edit':
+                                        _editRoutine(r);
+                                        break;
+                                      case 'duplicate':
+                                        _duplicate(r);
+                                        break;
+                                      case 'delete':
+                                        _delete(r);
+                                        break;
+                                    }
+                                  },
                                   itemBuilder: (context) => [
-                                    PopupMenuItem(
-                                      child: const Text('Duplicar'),
-                                      onTap: () => _duplicate(r),
+                                    PopupMenuItem<String>(
+                                      value: 'edit',
+                                      child: Row(
+                                        children: [
+                                          Image.asset(assetKey('images/iconos/editar.png'), width: 20, height: 20),
+                                          const SizedBox(width: 10),
+                                          const Text('Editar'),
+                                        ],
+                                      ),
                                     ),
-                                    PopupMenuItem(
-                                      child: const Text('Eliminar'),
-                                      onTap: () => _delete(r),
+                                    PopupMenuItem<String>(
+                                      value: 'duplicate',
+                                      child: Row(
+                                        children: [
+                                          Image.asset(assetKey('images/iconos/duplicar.png'), width: 20, height: 20),
+                                          const SizedBox(width: 10),
+                                          const Text('Duplicar'),
+                                        ],
+                                      ),
+                                    ),
+                                    PopupMenuItem<String>(
+                                      value: 'delete',
+                                      child: Row(
+                                        children: [
+                                          Image.asset(assetKey('images/iconos/borrar.png'), width: 20, height: 20),
+                                          const SizedBox(width: 10),
+                                          const Text('Eliminar'),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -452,7 +550,11 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
       floatingActionButton: showUserTab && _tabController.index == 0
           ? FloatingActionButton(
               onPressed: _createManual,
-              child: const Icon(Icons.add),
+              child: Image.asset(
+                assetKey('images/iconos/rutinaOdiscoPesa.png'),
+                width: 24,
+                height: 24,
+              ),
             )
           : null,
     );

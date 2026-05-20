@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../services/catalog_service.dart';
+import '../utils/asset_helper.dart';
+
 import '../services/auth_service.dart';
+import '../services/catalog_service.dart';
 import '../services/firebase_bootstrap.dart';
-import 'main_menu_screen.dart';
 import 'login_screen.dart';
+import 'main_menu_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,25 +22,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _checkSession() async {
-    // Firebase se inicializa en main.dart antes de mostrar HomeScreen
-    // Si aún no está listo, simplemente no redirigimos
     if (!FirebaseBootstrap.isReady) {
       return;
     }
 
     final user = AuthService().currentUser();
-    if (user != null) {
-      // Usuario ya loggeado, ir a MainMenuScreen
-      final data = await CatalogService().load();
-      if (!mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MainMenuScreen(data: data, isGuest: false),
-        ),
-        (route) => false,
-      );
-    }
+    if (user == null) return;
+
+    final data = await CatalogService().load();
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MainMenuScreen(data: data, isGuest: false),
+      ),
+      (route) => false,
+    );
   }
 
   @override
@@ -66,38 +66,53 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: scheme.primary,
-                        borderRadius: BorderRadius.circular(12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.asset(
+                        assetKey('images/logo/logoapp.jpg'),
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
                       ),
-                      child: Icon(Icons.favorite, color: scheme.onPrimary),
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      'FisioIA',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                    Expanded(
+                      child: Text(
+                        'FisioIA',
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
-                Text(
-                  'Tu rutina de recuperación,\nen una sola app',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        height: 1.1,
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.72),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: scheme.outlineVariant),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Tu rutina de recuperación,\nen una sola app',
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              height: 1.1,
+                            ),
                       ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Explora ejercicios por zona, guarda tus rutinas y usa el asistente IA para recomendaciones personalizadas.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: scheme.onSurfaceVariant,
+                      const SizedBox(height: 10),
+                      Text(
+                        'Explora ejercicios por zona, guarda tus rutinas y usa el asistente IA para recomendaciones personalizadas.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
                       ),
+                    ],
+                  ),
                 ),
                 const Spacer(),
                 Card(

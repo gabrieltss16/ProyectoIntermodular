@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:fisioia/models/exercise.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/asset_helper.dart';
 
 import '../services/catalog_service.dart';
 import '../services/azure_openai_service.dart';
@@ -768,6 +769,24 @@ class _ChatScreenState extends State<ChatScreen> {
         'Puedo listar zonas (“zonas”), sugerir ejercicios si me dices una zona (ej. “rodilla”) o describir un ejercicio del catálogo.';
   }
 
+  Future<void> _showSafetyWarning() async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Aviso importante'),
+        content: const Text(
+          'La IA puede equivocarse. Si notas dolor intenso, empeoramiento, inflamación o cualquier síntoma grave, acude a un médico o a un profesional sanitario.',
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Entendido'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -802,7 +821,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       await _resetChat();
                     }
                   },
-            icon: const Icon(Icons.add_comment_outlined),
+            icon: Image.asset(
+              assetKey('images/iconos/nuevoChat.png'),
+              width: 24,
+              height: 24,
+            ),
           ),
         ],
       ),
@@ -875,6 +898,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
                       child: TextField(
@@ -888,17 +912,46 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    FilledButton(
-                      onPressed: _sending ? null : _send,
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size(52, 52),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          width: 52,
+                          height: 52,
+                          child: OutlinedButton(
+                            onPressed: _showSafetyWarning,
+                            style: OutlinedButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            child: Image.asset(
+                              assetKey('images/iconos/advertencia.png'),
+                              width: 24,
+                              height: 24,
+                            ),
+                          ),
                         ),
-                        padding: EdgeInsets.zero,
+                        const SizedBox(height: 8),
+                        FilledButton(
+                          onPressed: _sending ? null : _send,
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size(52, 52),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: Image.asset(
+                            assetKey('images/iconos/enviar.png'),
+                            width: 24,
+                            height: 24,
+                          ),
+                        ),
+                      ],
                       ),
-                      child: const Icon(Icons.send_rounded),
-                    ),
                   ],
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/asset_helper.dart';
 
 import '../models/exercise.dart';
 import '../models/routine.dart';
@@ -30,7 +31,7 @@ class RoutineDetailScreen extends StatelessWidget {
     }
 
     return Image.asset(
-      exercise.imagen!,
+      assetKey(exercise.imagen!),
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) => fallback(),
     );

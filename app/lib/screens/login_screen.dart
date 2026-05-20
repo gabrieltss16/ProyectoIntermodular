@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/asset_helper.dart';
 
 import '../services/catalog_service.dart';
 import '../services/auth_service.dart';
@@ -146,6 +147,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 8),
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: Image.asset(
+                        assetKey('images/logo/logoapp.jpg'),
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
                   Text(
                     'Bienvenido',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
