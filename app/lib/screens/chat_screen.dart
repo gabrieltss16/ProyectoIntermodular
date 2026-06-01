@@ -234,6 +234,43 @@ class _ChatScreenState extends State<ChatScreen> {
         lower.contains('recomienda');
   }
 
+  /// Como [_extractAllZoneIdsFromText] pero también mapea condiciones comunes
+  /// (hernia, tendinitis aquilea, manguito...) a la zona correspondiente.
+  List<String> _extractZoneIdsWithConditions(String text) {
+    final zones = _extractAllZoneIdsFromText(text);
+    if (zones.isNotEmpty) return zones;
+
+    final lower = _normalize(text);
+    final conditionMap = <String, String>{
+      // Lumbar
+      'hernia': 'lumbar', 'discal': 'lumbar', 'lumbalgia': 'lumbar',
+      'ciatica': 'lumbar', 'ciatic': 'lumbar', 'lumbago': 'lumbar', 'columna': 'lumbar',
+      // Cervical
+      'cervicalgia': 'cervical', 'torticolis': 'cervical',
+      'cuello': 'cervical', 'nuca': 'cervical',
+      // Hombro
+      'manguito': 'hombro', 'capsulitis': 'hombro',
+      // Codo
+      'epicondilitis': 'codo', 'epitrocleitis': 'codo', 'tenista': 'codo', 'golfista': 'codo',
+      // Muñeca
+      'tunel carpiano': 'muneca', 'quervain': 'muneca',
+      // Rodilla
+      'menisco': 'rodilla', 'ligamento': 'rodilla', 'rotuliana': 'rodilla',
+      'condromalacia': 'rodilla', 'lca': 'rodilla',
+      // Tobillo
+      'aquiles': 'tobillo', 'esguince': 'tobillo', 'fascitis': 'tobillo',
+      // Cadera
+      'piriforme': 'cadera', 'trocanterica': 'cadera',
+      // Dorsal
+      'cifosis': 'dorsal', 'escoliosis': 'dorsal',
+    };
+
+    for (final entry in conditionMap.entries) {
+      if (lower.contains(entry.key)) return [entry.value];
+    }
+    return [];
+  }
+
   String? _lastUserMessageText() {
     for (var i = _messages.length - 1; i >= 0; i--) {
       final m = _messages[i];
@@ -363,24 +400,21 @@ class _ChatScreenState extends State<ChatScreen> {
       return {'text': 'Rutina pendiente cancelada.'};
     }
 
-    // Prioridad: si parece intención de rutina y detectamos zona(s), generamos pendiente local.
-    final allZoneIds = _extractAllZoneIdsFromText(userText);
+    // Detecta zonas desde nombre exacto o condición clínica ("hernia" → lumbar, etc.)
+    final allZoneIds = _extractZoneIdsWithConditions(userText);
     final zoneId = allZoneIds.isNotEmpty ? allZoneIds.first : null;
     final routineIntent =
         _looksLikeRoutineIntent(userText) ||
         lower.contains('dolor') ||
         lower.contains('molest') ||
         lower.contains('lesion') ||
-        lower.contains('recuper');
-    if (allZoneIds.isNotEmpty && routineIntent) {
-      final text = _buildPendingRoutineForZones(allZoneIds);
-      return {
-        'text': text,
-        'zoneId': allZoneIds.first,
-        'suggestedExerciseIds': _pendingRoutine?.exerciseIds,
-        'suggestedRoutineName': _pendingRoutine?.nombre,
-      };
-    }
+        lower.contains('recuper') ||
+        lower.contains('tendinitis') ||
+        lower.contains('contractura') ||
+        lower.contains('hernia') ||
+        lower.contains('artrosis') ||
+        lower.contains('esguince') ||
+        lower.contains('bursitis');
 
     // Backward compatibility con comando explícito.
     if (lower.startsWith('rutina ') || lower.startsWith('crear rutina ') || lower.contains('hazme rutina')) {
@@ -435,20 +469,14 @@ class _ChatScreenState extends State<ChatScreen> {
         );
 
         final responseZoneIds = _extractAllZoneIdsFromText(azureReply);
-        final shouldBuildFromAzure = responseZoneIds.isNotEmpty &&
-            (azureReply.toLowerCase().contains('rutina') ||
-                azureReply.toLowerCase().contains('ejercicios') ||
-                azureReply.toLowerCase().contains('suger'));
+        // Usa zonas de la respuesta de la IA; si no menciona zona, recae en las del mensaje del usuario.
+        final effectiveZoneIds = responseZoneIds.isNotEmpty ? responseZoneIds : allZoneIds;
 
-        if (shouldBuildFromAzure) {
-          _buildPendingRoutineForZones(responseZoneIds);
-        } else if (zoneId != null) {
-          _buildPendingRoutineForZone(zoneId);
+        if (effectiveZoneIds.isNotEmpty && routineIntent) {
+          _buildPendingRoutineForZones(effectiveZoneIds);
         }
 
-        final responseZoneId = responseZoneIds.isNotEmpty
-            ? responseZoneIds.first
-            : zoneId;
+        final responseZoneId = effectiveZoneIds.isNotEmpty ? effectiveZoneIds.first : null;
 
         return {
           'text': azureReply,
@@ -632,7 +660,7 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               Icon(
                 Icons.fitness_center,
-                size: 18,
+                size: 32,
                 color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(width: 8),
@@ -667,7 +695,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         _setPendingFromMessage(message);
                         _runPendingAction(_savePendingRoutine);
                       },
-                icon: const Icon(Icons.save, size: 18),
+                icon: const Icon(Icons.save, size: 32),
                 label: const Text('Guardar rutina'),
               ),
               OutlinedButton.icon(
@@ -677,7 +705,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         _setPendingFromMessage(message);
                         _runPendingAction(_editAndSavePendingRoutine);
                       },
-                icon: const Icon(Icons.edit, size: 18),
+                icon: const Icon(Icons.edit, size: 32),
                 label: const Text('Editar'),
               ),
             ],
@@ -823,8 +851,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   },
             icon: Image.asset(
               assetKey('images/iconos/nuevoChat.png'),
-              width: 24,
-              height: 24,
+              width: 36,
+              height: 36,
             ),
           ),
         ],
@@ -929,8 +957,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                             child: Image.asset(
                               assetKey('images/iconos/advertencia.png'),
-                              width: 24,
-                              height: 24,
+                              width: 32,
+                              height: 32,
                             ),
                           ),
                         ),
@@ -946,8 +974,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                           child: Image.asset(
                             assetKey('images/iconos/enviar.png'),
-                            width: 24,
-                            height: 24,
+                            width: 32,
+                            height: 32,
                           ),
                         ),
                       ],

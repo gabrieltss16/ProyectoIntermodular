@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/catalog_service.dart';
+import '../utils/asset_helper.dart';
 import 'zone_exercises_screen.dart';
 
 class ZonesScreen extends StatelessWidget {
@@ -7,6 +8,18 @@ class ZonesScreen extends StatelessWidget {
   final String? uid;
 
   const ZonesScreen({super.key, required this.data, required this.uid});
+
+  static const _zoneIcon = <String, String>{
+    'rodilla':  'images/iconos/rodilla.png',
+    'hombro':   'images/iconos/hombro.png',
+    'lumbar':   'images/iconos/lumbar.png',
+    'cervical': 'images/iconos/cervical.png',
+    'tobillo':  'images/iconos/tobillo.png',
+    'cadera':   'images/iconos/cadera.png',
+    'dorsal':   'images/iconos/dorsales.png',
+    'codo':     'images/iconos/codo.png',
+    'muneca':   'images/iconos/muneca.png',
+  };
 
   Widget _animatedIn({required int index, required Widget child}) {
     final step = (index * 40).clamp(0, 240);
@@ -43,7 +56,7 @@ class ZonesScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: scheme.primaryContainer,
-                      child: Icon(Icons.category_outlined, size: 30, color: scheme.primary),
+                      child: Icon(Icons.category_outlined, size: 32, color: scheme.primary),
                     ),
                     const SizedBox(height: 12),
                     const Text('No hay zonas cargadas todavía.'),
@@ -84,7 +97,14 @@ class ZonesScreen extends StatelessWidget {
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: scheme.primaryContainer,
-                      child: Text(z.nombre.isNotEmpty ? z.nombre[0].toUpperCase() : '?'),
+                      child: _zoneIcon.containsKey(z.id)
+                          ? Image.asset(
+                              assetKey(_zoneIcon[z.id]!),
+                              width: 32,
+                              height: 32,
+                              fit: BoxFit.contain,
+                            )
+                          : Text(z.nombre.isNotEmpty ? z.nombre[0].toUpperCase() : '?'),
                     ),
                     title: Text(z.nombre),
                     trailing: const Icon(Icons.chevron_right),

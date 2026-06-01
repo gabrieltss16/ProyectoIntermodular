@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/user_profile.dart';
+import '../services/auth_service.dart';
 import '../services/catalog_service.dart';
 import '../services/user_profile_repository.dart';
 
@@ -97,6 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final zones = widget.data.zones;
+    final email = AuthService().currentUser()?.email;
 
     return Scaffold(
       appBar: AppBar(
@@ -142,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           CircleAvatar(
                             radius: 28,
                             backgroundColor: scheme.primary,
-                            child: Icon(Icons.person, color: Colors.white, size: 24),
+                            child: Icon(Icons.person, color: Colors.white, size: 32),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -157,6 +159,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                 ),
                                 const SizedBox(height: 4),
+                                if (email != null) ...[  
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    email,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: scheme.primary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                ],
+                                const SizedBox(height: 2),
                                 Text(
                                   'Personaliza tu perfil para mejores recomendaciones.',
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

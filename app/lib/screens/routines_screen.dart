@@ -225,7 +225,7 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
                 CircleAvatar(
                   radius: 30,
                   backgroundColor: scheme.primaryContainer,
-                  child: Icon(icon, size: 30, color: scheme.primary),
+                  child: Icon(icon, size: 32, color: scheme.primary),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -552,8 +552,8 @@ class _RoutinesScreenState extends State<RoutinesScreen> with TickerProviderStat
               onPressed: _createManual,
               child: Image.asset(
                 assetKey('images/iconos/rutinaOdiscoPesa.png'),
-                width: 24,
-                height: 24,
+                width: 32,
+                height: 32,
               ),
             )
           : null,

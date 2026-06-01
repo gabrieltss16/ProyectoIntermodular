@@ -54,6 +54,8 @@ class MyApp extends StatelessWidget {
         tertiary: _deepBlue,
       ),
       scaffoldBackgroundColor: _backgroundBlue,
+      iconTheme: const IconThemeData(size: 32),
+      primaryIconTheme: const IconThemeData(size: 32),
       textTheme: Typography.blackMountainView.apply(
         bodyColor: _deepBlue,
         displayColor: _deepBlue,
@@ -61,7 +63,9 @@ class MyApp extends StatelessWidget {
       appBarTheme: AppBarTheme(
         backgroundColor: _primaryBlue,
         foregroundColor: Colors.white,
-        centerTitle: false,
+        iconTheme: const IconThemeData(size: 32, color: Colors.white),
+        actionsIconTheme: const IconThemeData(size: 32, color: Colors.white),
+        centerTitle: true,
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.1),
         titleTextStyle: const TextStyle(
@@ -102,6 +106,9 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(iconSize: 32),
+      ),
       chipTheme: ChipThemeData(
         backgroundColor: scheme.surfaceContainerHighest,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -110,7 +117,7 @@ class MyApp extends StatelessWidget {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
         indicatorColor: _primaryBlue.withValues(alpha: 0.15),
-        iconTheme: const WidgetStatePropertyAll(IconThemeData(size: 28)),
+        iconTheme: const WidgetStatePropertyAll(IconThemeData(size: 32)),
         labelTextStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         height: 80,
       ),

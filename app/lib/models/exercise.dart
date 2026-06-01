@@ -6,6 +6,7 @@ class Exercise {
   final int series;
   final int repeticiones;
   final String? imagen;
+  final List<String> tags;
 
   Exercise({
     required this.id,
@@ -15,6 +16,7 @@ class Exercise {
     required this.series,
     required this.repeticiones,
     this.imagen,
+    this.tags = const [],
   });
 
   factory Exercise.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class Exercise {
       series: (json['series'] as num).toInt(),
       repeticiones: (json['repeticiones'] as num).toInt(),
       imagen: json['imagen'] as String?,
+      tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? const [],
     );
   }
 }

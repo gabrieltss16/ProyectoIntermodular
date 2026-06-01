@@ -113,7 +113,7 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
       appBar: AppBar(
         title: Text(widget.initial == null ? 'NUEVA RUTINA' : 'EDITAR RUTINA'),
         actions: [
-          IconButton(onPressed: _save, icon: const Icon(Icons.check)),
+          IconButton(onPressed: _save, icon: const Icon(Icons.check), iconSize: 32),
         ],
       ),
       body: Form(
@@ -186,11 +186,13 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
                           tooltip: 'Subir',
                           onPressed: () => _moveUp(e.id),
                           icon: const Icon(Icons.arrow_upward),
+                          iconSize: 32,
                         ),
                         IconButton(
                           tooltip: 'Bajar',
                           onPressed: () => _moveDown(e.id),
                           icon: const Icon(Icons.arrow_downward),
+                          iconSize: 32,
                         ),
                       ],
                     ),

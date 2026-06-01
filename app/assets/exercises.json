@@ -1,4 +1,4 @@
-{
+﻿{
   "zones": [
     { "id": "rodilla", "nombre": "Rodilla" },
     { "id": "hombro", "nombre": "Hombro" },
@@ -8,674 +8,119 @@
     { "id": "cadera", "nombre": "Cadera" },
     { "id": "dorsal", "nombre": "Espalda dorsal" },
     { "id": "codo", "nombre": "Codo" },
-    { "id": "muneca", "nombre": "Muñeca" }
+    { "id": "muneca", "nombre": "Muneca" }
   ],
   "exercises": [
-    {
-      "id": "ex_rodilla_01",
-      "zonaId": "rodilla",
-      "nombre": "Extensión de rodilla sentado",
-      "descripcion": "Siéntate con la espalda recta y extiende la pierna lentamente, mantén 2 segundos.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_rodilla_02",
-      "zonaId": "rodilla",
-      "nombre": "Sentadilla parcial asistida",
-      "descripcion": "Con apoyo en pared o silla, baja ligeramente manteniendo rodillas alineadas sin pasar la punta del pie.",
-      "series": 3,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_rodilla_03",
-      "zonaId": "rodilla",
-      "nombre": "Elevación de pierna estirada",
-      "descripcion": "Tumbado boca arriba, eleva la pierna estirada y desciende de forma controlada sin tocar el suelo.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_rodilla_04",
-      "zonaId": "rodilla",
-      "nombre": "Flexión de rodilla tumbado",
-      "descripcion": "Boca abajo, flexiona la rodilla llevando el talón hacia los glúteos lentamente.",
-      "series": 3,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_rodilla_05",
-      "zonaId": "rodilla",
-      "nombre": "Marcha estacionaria",
-      "descripcion": "De pie, eleva las rodillas alternas a la altura de la cadera de forma controlada.",
-      "series": 3,
-      "repeticiones": 20,
-      "imagen": null
-    },
-    {
-      "id": "ex_rodilla_06",
-      "zonaId": "rodilla",
-      "nombre": "Isométrica de cuádriceps",
-      "descripcion": "Sentado, coloca una toalla bajo la rodilla y contrae el cuádriceps manteniendo 5 segundos.",
-      "series": 3,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_rodilla_07",
-      "zonaId": "rodilla",
-      "nombre": "Estiramiento de cuádriceps de pie",
-      "descripcion": "De pie, coge el tobillo y acerca el talón a los glúteos, mantén 30 segundos.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_rodilla_08",
-      "zonaId": "rodilla",
-      "nombre": "Estiramiento de isquiotibiales",
-      "descripcion": "Acostado boca arriba, flexiona la rodilla y lleva la rodilla hacia el pecho con ayuda de manos.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_hombro_01",
-      "zonaId": "hombro",
-      "nombre": "Péndulo de hombro",
-      "descripcion": "Inclínate sobre una silla, deja el brazo colgando y realiza pequeños círculos de forma relajada.",
-      "series": 2,
-      "repeticiones": 20,
-      "imagen": null
-    },
-    {
-      "id": "ex_hombro_02",
-      "zonaId": "hombro",
-      "nombre": "Deslizamiento en pared",
-      "descripcion": "De espaldas a la pared, desliza el antebrazo elevando el brazo sin dolor ni fuerza.",
-      "series": 3,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_hombro_03",
-      "zonaId": "hombro",
-      "nombre": "Rotación externa con banda",
-      "descripcion": "Con codo pegado al cuerpo flexionado 90°, rota el antebrazo hacia fuera con banda elástica.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_hombro_04",
-      "zonaId": "hombro",
-      "nombre": "Rotación interna con banda",
-      "descripcion": "Con codo pegado al cuerpo flexionado 90°, rota el antebrazo hacia dentro con banda elástica.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_hombro_05",
-      "zonaId": "hombro",
-      "nombre": "Elevación frontal de brazos",
-      "descripcion": "De pie, levanta los brazos al frente hasta la altura del hombro, baja lentamente.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_hombro_06",
-      "zonaId": "hombro",
-      "nombre": "Elevación lateral de brazos",
-      "descripcion": "De pie, levanta los brazos de los lados hasta la altura del hombro, baja controlado.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_hombro_07",
-      "zonaId": "hombro",
-      "nombre": "Estiramiento de hombro cruzado",
-      "descripcion": "Pasa un brazo sobre el pecho y presiona suavemente con la otra mano, mantén 30 segundos.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_hombro_08",
-      "zonaId": "hombro",
-      "nombre": "Estiramiento de espalda y hombro",
-      "descripcion": "Entrelaza los dedos frente a ti y estira los brazos hacia arriba, inclinándote ligeramente.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_lumbar_01",
-      "zonaId": "lumbar",
-      "nombre": "Basculación pélvica",
-      "descripcion": "Tumbado boca arriba con rodillas flexionadas, alterna la inclinación de la pelvis lentamente.",
-      "series": 3,
-      "repeticiones": 15,
-      "imagen": null
-    },
-    {
-      "id": "ex_lumbar_02",
-      "zonaId": "lumbar",
-      "nombre": "Puente de glúteos",
-      "descripcion": "Tumbado boca arriba, eleva cadera activando glúteos y abdomen, mantén 2 segundos.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_lumbar_03",
-      "zonaId": "lumbar",
-      "nombre": "Rodillas al pecho alternas",
-      "descripcion": "Acuesta, acerca una rodilla al pecho mientras la otra permanece extendida.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_lumbar_04",
-      "zonaId": "lumbar",
-      "nombre": "Tabla abdominal modificada",
-      "descripcion": "Apoyado en antebrazos y rodillas, mantén el cuerpo alineado durante 10-20 segundos.",
-      "series": 3,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_lumbar_05",
-      "zonaId": "lumbar",
-      "nombre": "Bird dog",
-      "descripcion": "Gatea sobre manos y rodillas, extiende brazo y pierna opuesta, alterna lados.",
-      "series": 3,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_lumbar_06",
-      "zonaId": "lumbar",
-      "nombre": "Estiramiento de espalda baja",
-      "descripcion": "Acostado boca arriba, abraza ambas rodillas y acerca hacia el pecho, mantén 30 segundos.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_lumbar_07",
-      "zonaId": "lumbar",
-      "nombre": "Gato-vaca",
-      "descripcion": "En posición de gatea, alterna arqueando y redondeando la espalda lentamente.",
-      "series": 2,
-      "repeticiones": 15,
-      "imagen": null
-    },
-    {
-      "id": "ex_lumbar_08",
-      "zonaId": "lumbar",
-      "nombre": "Flexión de cadera en posición supina",
-      "descripcion": "Tumbado boca arriba, flexiona la cadera llevando la rodilla hacia el pecho sin tirar.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_cervical_01",
-      "zonaId": "cervical",
-      "nombre": "Retracción cervical",
-      "descripcion": "De pie, lleva la barbilla hacia atrás sin flexionar el cuello, como haciendo doble mentón leve.",
-      "series": 3,
-      "repeticiones": 15,
-      "imagen": null
-    },
-    {
-      "id": "ex_cervical_02",
-      "zonaId": "cervical",
-      "nombre": "Inclinación lateral suave",
-      "descripcion": "De pie, inclina la cabeza hacia un lado sin elevar el hombro, mantén 20 segundos.",
-      "series": 2,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_cervical_03",
-      "zonaId": "cervical",
-      "nombre": "Rotación cervical controlada",
-      "descripcion": "De pie, gira la cabeza de lado a lado en rango cómodo sin dolor, mantén cada lado.",
-      "series": 2,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_cervical_04",
-      "zonaId": "cervical",
-      "nombre": "Flexión cervical hacia adelante",
-      "descripcion": "Baja la barbilla al pecho de forma lenta y controlada, siente el estiramiento.",
-      "series": 2,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_cervical_05",
-      "zonaId": "cervical",
-      "nombre": "Estiramiento de cuello en diagonal",
-      "descripcion": "Pasa una mano sobre la cabeza y presiona suavemente hacia diagonal, mantén 30 segundos.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_cervical_06",
-      "zonaId": "cervical",
-      "nombre": "Ejercicio de resistencia isométrica cervical",
-      "descripcion": "Coloca la mano en la cabeza y presiona contra ella sin permitir movimiento, mantén 5 seg.",
-      "series": 3,
-      "repeticiones": 8,
-      "imagen": null
-    },
-    {
-      "id": "ex_cervical_07",
-      "zonaId": "cervical",
-      "nombre": "Estiramiento de trapecio superior",
-      "descripcion": "Inclina la cabeza hacia un lado y presiona suavemente el hombro opuesto hacia abajo.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_cervical_08",
-      "zonaId": "cervical",
-      "nombre": "Movilización de escápula",
-      "descripcion": "De pie, eleva y baja los hombros de forma controlada, realiza círculos.",
-      "series": 2,
-      "repeticiones": 15,
-      "imagen": null
-    },
-    {
-      "id": "ex_tobillo_01",
-      "zonaId": "tobillo",
-      "nombre": "Flexo-extensión de tobillo",
-      "descripcion": "Sentado, mueve el pie arriba y abajo de forma controlada y lenta.",
-      "series": 3,
-      "repeticiones": 15,
-      "imagen": null
-    },
-    {
-      "id": "ex_tobillo_02",
-      "zonaId": "tobillo",
-      "nombre": "Círculos de tobillo",
-      "descripcion": "Sentado, realiza círculos amplios con el pie en ambos sentidos.",
-      "series": 2,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_tobillo_03",
-      "zonaId": "tobillo",
-      "nombre": "Elevación de talones de pie",
-      "descripcion": "De pie con apoyo, eleva talones levantando cuerpo sobre las puntas, baja lentamente.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_tobillo_04",
-      "zonaId": "tobillo",
-      "nombre": "Apoyo en punta de pie",
-      "descripcion": "De pie con apoyo, apoya solo las puntas de los pies, mantén 10 segundos.",
-      "series": 3,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_tobillo_05",
-      "zonaId": "tobillo",
-      "nombre": "Inversión de tobillo",
-      "descripcion": "Sentado, gira el pie hacia adentro de forma controlada, mantén 5 segundos.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_tobillo_06",
-      "zonaId": "tobillo",
-      "nombre": "Eversión de tobillo",
-      "descripcion": "Sentado, gira el pie hacia afuera de forma controlada, mantén 5 segundos.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_tobillo_07",
-      "zonaId": "tobillo",
-      "nombre": "Estiramiento de gemelos",
-      "descripcion": "De pie frente a pared, adelanta una pierna y flexiona la rodilla, la otra se estira atrás.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_tobillo_08",
-      "zonaId": "tobillo",
-      "nombre": "Caminar sobre talones",
-      "descripcion": "De pie, camina apoyándote solo en los talones durante 20-30 segundos.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_cadera_01",
-      "zonaId": "cadera",
-      "nombre": "Abducción de cadera tumbado",
-      "descripcion": "Acostado de lado, eleva la pierna superior lentamente manteniendo alineación.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_cadera_02",
-      "zonaId": "cadera",
-      "nombre": "Aducción de cadera tumbado",
-      "descripcion": "Acostado de lado, cruza la pierna superior sobre la inferior y eleva la inferior.",
-      "series": 3,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_cadera_03",
-      "zonaId": "cadera",
-      "nombre": "Rotación externa de cadera",
-      "descripcion": "Acostado boca arriba con rodillas flexionadas, gira las rodillas hacia afuera manteniendo pies juntos.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_cadera_04",
-      "zonaId": "cadera",
-      "nombre": "Rotación interna de cadera",
-      "descripcion": "Acostado boca arriba con rodillas flexionadas, gira las rodillas hacia adentro.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_cadera_05",
-      "zonaId": "cadera",
-      "nombre": "Flexión de cadera en posición supina",
-      "descripcion": "Acostado boca arriba, levanta la rodilla hacia el pecho, alterna lados.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_cadera_06",
-      "zonaId": "cadera",
-      "nombre": "Estiramiento de piriforme",
-      "descripcion": "Acostado boca arriba, cruza una pierna sobre la otra y acerca la rodilla al pecho.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_cadera_07",
-      "zonaId": "cadera",
-      "nombre": "Estiramiento de glúteos",
-      "descripcion": "De pie, levanta una rodilla y la sostienes hacia el pecho, mantén 30 segundos.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_cadera_08",
-      "zonaId": "cadera",
-      "nombre": "Marcha de glúteos",
-      "descripcion": "Sentado con piernas estiradas, muévete hacia adelante usando los glúteos y manos.",
-      "series": 2,
-      "repeticiones": 20,
-      "imagen": null
-    },
-    {
-      "id": "ex_dorsal_01",
-      "zonaId": "dorsal",
-      "nombre": "Encogimiento de hombros",
-      "descripcion": "De pie, eleva los hombros hacia las orejas, mantén 2 segundos y relaxa.",
-      "series": 3,
-      "repeticiones": 15,
-      "imagen": null
-    },
-    {
-      "id": "ex_dorsal_02",
-      "zonaId": "dorsal",
-      "nombre": "Flexión torácica en silla",
-      "descripcion": "Sentado, coloca manos detrás de la cabeza e inclínate hacia atrás suavemente.",
-      "series": 2,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_dorsal_03",
-      "zonaId": "dorsal",
-      "nombre": "Estiramiento de pecho en esquina",
-      "descripcion": "De frente a una esquina con brazos en 90°, avanza para sentir estiramiento en pecho.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_dorsal_04",
-      "zonaId": "dorsal",
-      "nombre": "Remo en banda",
-      "descripcion": "De pie o sentado, tira una banda hacia el cuerpo manteniendo codos altos.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_dorsal_05",
-      "zonaId": "dorsal",
-      "nombre": "Extensión de espalda en pelota",
-      "descripcion": "Sentado en pelota de estabilidad, camina manos hacia adelante y regresa extendiendo espalda.",
-      "series": 2,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_dorsal_06",
-      "zonaId": "dorsal",
-      "nombre": "Estiramiento de espalda alta",
-      "descripcion": "De pie, abraza el brazo de la silla opuesta y estira los dorsales, mantén 30 seg.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_dorsal_07",
-      "zonaId": "dorsal",
-      "nombre": "Retracción escapular",
-      "descripcion": "De pie, junta las escápulas llevando los hombros atrás, mantén 5 segundos.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_dorsal_08",
-      "zonaId": "dorsal",
-      "nombre": "Gato-vaca modificado",
-      "descripcion": "En gatea, alterna arqueando y redondeando la espalda enfocándose en dorsal.",
-      "series": 2,
-      "repeticiones": 15,
-      "imagen": null
-    },
-    {
-      "id": "ex_codo_01",
-      "zonaId": "codo",
-      "nombre": "Flexión de codo",
-      "descripcion": "De pie o sentado, flexiona el codo llevando la mano hacia el hombro.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_codo_02",
-      "zonaId": "codo",
-      "nombre": "Extensión de codo",
-      "descripcion": "De pie con brazo en alto, extiende completamente el codo hacia adelante.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_codo_03",
-      "zonaId": "codo",
-      "nombre": "Pronación y supinación",
-      "descripcion": "Con codo flexionado 90°, gira el antebrazo palma arriba y palma abajo.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_codo_04",
-      "zonaId": "codo",
-      "nombre": "Estiramiento de extensores del codo",
-      "descripcion": "Lleva un brazo atrás de la cabeza flexionado y presiona suavemente el codo hacia abajo.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_codo_05",
-      "zonaId": "codo",
-      "nombre": "Estiramiento de flexores del codo",
-      "descripcion": "Con brazo extendido, presiona la palma hacia abajo con la otra mano.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_codo_06",
-      "zonaId": "codo",
-      "nombre": "Ejercicio isométrico de codo",
-      "descripcion": "Flexiona el codo con resistencia manual, presiona sin permitir movimiento 5 segundos.",
-      "series": 3,
-      "repeticiones": 8,
-      "imagen": null
-    },
-    {
-      "id": "ex_codo_07",
-      "zonaId": "codo",
-      "nombre": "Ejercicio de tennis con banda",
-      "descripcion": "Con codo flexionado, estira la muñeca hacia arriba con resistencia de banda.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_codo_08",
-      "zonaId": "codo",
-      "nombre": "Ejercicio de golfer con banda",
-      "descripcion": "Con codo flexionado, flexiona la muñeca hacia abajo con resistencia de banda.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_muneca_01",
-      "zonaId": "muneca",
-      "nombre": "Flexión de muñeca",
-      "descripcion": "Con antebrazo apoyado, flexiona la muñeca llevando la palma hacia el antebrazo.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_muneca_02",
-      "zonaId": "muneca",
-      "nombre": "Extensión de muñeca",
-      "descripcion": "Con antebrazo apoyado, extiende la muñeca hacia arriba separándose del antebrazo.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_muneca_03",
-      "zonaId": "muneca",
-      "nombre": "Desviación radial de muñeca",
-      "descripcion": "Con antebrazo apoyado, inclina la muñeca hacia el lado del pulgar.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_muneca_04",
-      "zonaId": "muneca",
-      "nombre": "Desviación cubital de muñeca",
-      "descripcion": "Con antebrazo apoyado, inclina la muñeca hacia el lado del meñique.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_muneca_05",
-      "zonaId": "muneca",
-      "nombre": "Rotación de muñeca",
-      "descripcion": "Extiende el brazo y gira la muñeca en ambos sentidos en rango completo.",
-      "series": 3,
-      "repeticiones": 10,
-      "imagen": null
-    },
-    {
-      "id": "ex_muneca_06",
-      "zonaId": "muneca",
-      "nombre": "Estiramiento de flexores de muñeca",
-      "descripcion": "Extiende el brazo hacia adelante y presiona el dorso de la mano hacia abajo.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_muneca_07",
-      "zonaId": "muneca",
-      "nombre": "Estiramiento de extensores de muñeca",
-      "descripcion": "Extiende el brazo y con la otra mano presiona la palma hacia abajo.",
-      "series": 2,
-      "repeticiones": 1,
-      "imagen": null
-    },
-    {
-      "id": "ex_muneca_08",
-      "zonaId": "muneca",
-      "nombre": "Movilización de dedos y muñeca",
-      "descripcion": "Realiza ejercicios de apertura y cierre de puño, rotaciones de muñeca.",
-      "series": 2,
-      "repeticiones": 15,
-      "imagen": null
-    },
-    {
-      "id": "ex_muneca_09",
-      "zonaId": "muneca",
-      "nombre": "Agarre con pelota terapéutica",
-      "descripcion": "Exprime una pelota suave en la mano, realiza 10-15 repeticiones.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    },
-    {
-      "id": "ex_muneca_10",
-      "zonaId": "muneca",
-      "nombre": "Ejercicio con varilla de pronación-supinación",
-      "descripcion": "Sostén una varilla y gira hacia ambos lados con movimiento controlado.",
-      "series": 3,
-      "repeticiones": 12,
-      "imagen": null
-    }
+    { "id": "ex_rodilla_01", "zonaId": "rodilla", "nombre": "Extension de rodilla sentado", "descripcion": "Sientate con la espalda recta y extiende la pierna lentamente, manten 2 segundos.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "artrosis", "fuerza", "moderado"] },
+    { "id": "ex_rodilla_02", "zonaId": "rodilla", "nombre": "Sentadilla parcial asistida", "descripcion": "Con apoyo en pared o silla, baja ligeramente manteniendo rodillas alineadas sin pasar la punta del pie.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["cronico", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_rodilla_03", "zonaId": "rodilla", "nombre": "Elevacion de pierna estirada", "descripcion": "Tumbado boca arriba, eleva la pierna estirada y desciende de forma controlada sin tocar el suelo.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["agudo", "postoperatorio", "fuerza", "inicial"] },
+    { "id": "ex_rodilla_04", "zonaId": "rodilla", "nombre": "Flexion de rodilla tumbado", "descripcion": "Boca abajo, flexiona la rodilla llevando el talon hacia los gluteos lentamente.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["cronico", "movilidad", "moderado"] },
+    { "id": "ex_rodilla_05", "zonaId": "rodilla", "nombre": "Marcha estacionaria", "descripcion": "De pie, eleva las rodillas alternas a la altura de la cadera de forma controlada.", "series": 3, "repeticiones": 20, "imagen": null, "tags": ["prevencion", "fuerza", "avanzado"] },
+    { "id": "ex_rodilla_06", "zonaId": "rodilla", "nombre": "Isometrica de cuadriceps", "descripcion": "Sentado, coloca una toalla bajo la rodilla y contrae el cuadriceps manteniendo 5 segundos.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["agudo", "postoperatorio", "menisco", "lca", "fuerza", "inicial"] },
+    { "id": "ex_rodilla_07", "zonaId": "rodilla", "nombre": "Estiramiento de cuadriceps de pie", "descripcion": "De pie, coge el tobillo y acerca el talon a los gluteos, manten 30 segundos.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["cronico", "prevencion", "estiramiento", "moderado"] },
+    { "id": "ex_rodilla_08", "zonaId": "rodilla", "nombre": "Estiramiento de isquiotibiales", "descripcion": "Acostado boca arriba, flexiona la rodilla y lleva la rodilla hacia el pecho con ayuda de manos.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["cronico", "prevencion", "estiramiento", "moderado"] },
+    { "id": "ex_rodilla_09", "zonaId": "rodilla", "nombre": "Movilizacion pasiva de rodilla en cama", "descripcion": "Tumbado, desliza el talon hacia los gluteos sin esfuerzo activo, solo hasta donde no duela.", "series": 2, "repeticiones": 10, "imagen": null, "tags": ["agudo", "postoperatorio", "menisco", "lca", "movilidad", "inicial"] },
+    { "id": "ex_rodilla_10", "zonaId": "rodilla", "nombre": "Contraccion isometrica de isquiotibiales", "descripcion": "Tumbado boca arriba, flexiona ligeramente la rodilla y presiona el talon contra el suelo sin moverlo.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["agudo", "postoperatorio", "lca", "fuerza", "inicial"] },
+    { "id": "ex_rodilla_11", "zonaId": "rodilla", "nombre": "Fortalecimiento de VMO (vasto medial)", "descripcion": "Sentado, coloca una pelota entre rodillas y aprieta mientras extiendes la rodilla los ultimos 30 grados.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["tendinitis", "menisco", "condromalacia", "fuerza", "moderado"] },
+    { "id": "ex_rodilla_12", "zonaId": "rodilla", "nombre": "Sentadilla excentrica en escalon", "descripcion": "De pie en un escalon, baja lentamente solo con la pierna afectada (5 segundos de descenso).", "series": 3, "repeticiones": 8, "imagen": null, "tags": ["tendinitis", "cronico", "fuerza", "avanzado"] },
+    { "id": "ex_rodilla_13", "zonaId": "rodilla", "nombre": "Marcha en agua o piscina", "descripcion": "Camina lentamente en agua hasta la cadera, reduciendo la carga articular.", "series": 1, "repeticiones": 1, "imagen": null, "tags": ["artrosis", "agudo", "postoperatorio", "movilidad", "inicial"] },
+    { "id": "ex_rodilla_14", "zonaId": "rodilla", "nombre": "Equilibrio monopodal con ojos cerrados", "descripcion": "De pie sobre la pierna afectada con ojos cerrados, aguanta 20-30 segundos.", "series": 3, "repeticiones": 1, "imagen": null, "tags": ["lca", "esguince", "prevencion", "propiocepcion", "avanzado"] },
+    { "id": "ex_hombro_01", "zonaId": "hombro", "nombre": "Pendulo de hombro", "descripcion": "Inclinate sobre una silla, deja el brazo colgando y realiza pequenos circulos de forma relajada.", "series": 2, "repeticiones": 20, "imagen": null, "tags": ["agudo", "hombro_congelado", "postoperatorio", "movilidad", "inicial"] },
+    { "id": "ex_hombro_02", "zonaId": "hombro", "nombre": "Deslizamiento en pared", "descripcion": "De espaldas a la pared, desliza el antebrazo elevando el brazo sin dolor ni fuerza.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["hombro_congelado", "postoperatorio", "movilidad", "inicial"] },
+    { "id": "ex_hombro_03", "zonaId": "hombro", "nombre": "Rotacion externa con banda", "descripcion": "Con codo pegado al cuerpo flexionado 90 grados, rota el antebrazo hacia fuera con banda elastica.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["manguito_rotador", "tendinitis", "inestabilidad", "fuerza", "moderado"] },
+    { "id": "ex_hombro_04", "zonaId": "hombro", "nombre": "Rotacion interna con banda", "descripcion": "Con codo pegado al cuerpo flexionado 90 grados, rota el antebrazo hacia dentro con banda elastica.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["manguito_rotador", "tendinitis", "fuerza", "moderado"] },
+    { "id": "ex_hombro_05", "zonaId": "hombro", "nombre": "Elevacion frontal de brazos", "descripcion": "De pie, levanta los brazos al frente hasta la altura del hombro, baja lentamente.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_hombro_06", "zonaId": "hombro", "nombre": "Elevacion lateral de brazos", "descripcion": "De pie, levanta los brazos de los lados hasta la altura del hombro, baja controlado.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_hombro_07", "zonaId": "hombro", "nombre": "Estiramiento de hombro cruzado", "descripcion": "Pasa un brazo sobre el pecho y presiona suavemente con la otra mano, manten 30 segundos.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["cronico", "contractura", "prevencion", "estiramiento", "moderado"] },
+    { "id": "ex_hombro_08", "zonaId": "hombro", "nombre": "Estiramiento de espalda y hombro", "descripcion": "Entrelaza los dedos frente a ti y estira los brazos hacia arriba, inclinandote ligeramente.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["cronico", "prevencion", "estiramiento", "inicial"] },
+    { "id": "ex_hombro_09", "zonaId": "hombro", "nombre": "Isometrico de manguito rotador", "descripcion": "Coloca la mano contra la pared y empuja sin mover el brazo, manten 5 segundos en cada direccion.", "series": 3, "repeticiones": 8, "imagen": null, "tags": ["agudo", "manguito_rotador", "tendinitis", "fuerza", "inicial"] },
+    { "id": "ex_hombro_10", "zonaId": "hombro", "nombre": "Ejercicio de Codman con peso", "descripcion": "Tumbado boca arriba, eleva el brazo con peso ligero (0.5-1kg) hacia el techo de forma controlada.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["manguito_rotador", "postoperatorio", "fuerza", "moderado"] },
+    { "id": "ex_hombro_11", "zonaId": "hombro", "nombre": "Estabilizacion escapular en pared", "descripcion": "Con antebrazos en la pared, presiona sin mover el cuerpo activando las escapulas.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["inestabilidad", "manguito_rotador", "estabilizacion", "moderado"] },
+    { "id": "ex_hombro_12", "zonaId": "hombro", "nombre": "Rotacion asistida en decubito con baston", "descripcion": "Tumbado boca arriba, usa el brazo sano para llevar suavemente el brazo afectado en rotacion externa.", "series": 2, "repeticiones": 10, "imagen": null, "tags": ["hombro_congelado", "postoperatorio", "movilidad", "inicial"] },
+    { "id": "ex_hombro_13", "zonaId": "hombro", "nombre": "Press de hombro excentrico", "descripcion": "Lleva el brazo hacia el techo y baja muy lentamente (4-5 segundos) resistiendo la gravedad.", "series": 3, "repeticiones": 8, "imagen": null, "tags": ["tendinitis", "cronico", "fuerza", "avanzado"] },
+    { "id": "ex_lumbar_01", "zonaId": "lumbar", "nombre": "Basculacion pelvica", "descripcion": "Tumbado boca arriba con rodillas flexionadas, alterna la inclinacion de la pelvis lentamente.", "series": 3, "repeticiones": 15, "imagen": null, "tags": ["agudo", "cronico", "hernia", "contractura", "movilidad", "inicial"] },
+    { "id": "ex_lumbar_02", "zonaId": "lumbar", "nombre": "Puente de gluteos", "descripcion": "Tumbado boca arriba, eleva cadera activando gluteos y abdomen, manten 2 segundos.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "prevencion", "artrosis", "fuerza", "moderado"] },
+    { "id": "ex_lumbar_03", "zonaId": "lumbar", "nombre": "Rodillas al pecho alternas", "descripcion": "Acuesta, acerca una rodilla al pecho mientras la otra permanece extendida.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["agudo", "hernia", "contractura", "estiramiento", "inicial"] },
+    { "id": "ex_lumbar_04", "zonaId": "lumbar", "nombre": "Tabla abdominal modificada", "descripcion": "Apoyado en antebrazos y rodillas, manten el cuerpo alineado durante 10-20 segundos.", "series": 3, "repeticiones": 1, "imagen": null, "tags": ["cronico", "prevencion", "estabilizacion", "moderado"] },
+    { "id": "ex_lumbar_05", "zonaId": "lumbar", "nombre": "Bird dog", "descripcion": "Gatea sobre manos y rodillas, extiende brazo y pierna opuesta, alterna lados.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["cronico", "prevencion", "estabilizacion", "moderado"] },
+    { "id": "ex_lumbar_06", "zonaId": "lumbar", "nombre": "Estiramiento de espalda baja", "descripcion": "Acostado boca arriba, abraza ambas rodillas y acerca hacia el pecho, manten 30 segundos.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["agudo", "cronico", "contractura", "estiramiento", "inicial"] },
+    { "id": "ex_lumbar_07", "zonaId": "lumbar", "nombre": "Gato-vaca", "descripcion": "En posicion de gatea, alterna arqueando y redondeando la espalda lentamente.", "series": 2, "repeticiones": 15, "imagen": null, "tags": ["cronico", "hernia", "contractura", "movilidad", "inicial"] },
+    { "id": "ex_lumbar_08", "zonaId": "lumbar", "nombre": "Flexion de cadera en posicion supina", "descripcion": "Tumbado boca arriba, flexiona la cadera llevando la rodilla hacia el pecho sin tirar.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "hernia", "movilidad", "moderado"] },
+    { "id": "ex_lumbar_09", "zonaId": "lumbar", "nombre": "Extension lumbar en prono (McKenzie fase 1)", "descripcion": "Tumbado boca abajo, apoya los antebrazos y eleva solo el tronco hasta los codos, manten 10 seg.", "series": 3, "repeticiones": 8, "imagen": null, "tags": ["hernia", "discal", "movilidad", "moderado"] },
+    { "id": "ex_lumbar_10", "zonaId": "lumbar", "nombre": "Extension lumbar de pie en pared", "descripcion": "De pie, apoya las manos en la zona lumbar y arquea ligeramente la espalda hacia atras.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["hernia", "discal", "movilidad", "inicial"] },
+    { "id": "ex_lumbar_11", "zonaId": "lumbar", "nombre": "Estiramiento en flexion (Williams)", "descripcion": "Sentado con las piernas ligeramente separadas, inclinate hacia adelante deslizando las manos al suelo.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["estenosis", "artrosis", "estiramiento", "moderado"] },
+    { "id": "ex_lumbar_12", "zonaId": "lumbar", "nombre": "Fortalecimiento de suelo pelvico", "descripcion": "Tumbado, contrae la musculatura profunda abdominal y suelo pelvico, manten 5-10 segundos.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["postoperatorio", "cronico", "estabilizacion", "inicial"] },
+    { "id": "ex_lumbar_13", "zonaId": "lumbar", "nombre": "Tabla completa", "descripcion": "Apoyado en antebrazos y puntas de pies, manten el cuerpo recto durante 20-30 segundos.", "series": 3, "repeticiones": 1, "imagen": null, "tags": ["prevencion", "cronico", "estabilizacion", "avanzado"] },
+    { "id": "ex_cervical_01", "zonaId": "cervical", "nombre": "Retraccion cervical", "descripcion": "De pie, lleva la barbilla hacia atras sin flexionar el cuello, como haciendo doble menton leve.", "series": 3, "repeticiones": 15, "imagen": null, "tags": ["cronico", "hernia", "contractura", "movilidad", "inicial"] },
+    { "id": "ex_cervical_02", "zonaId": "cervical", "nombre": "Inclinacion lateral suave", "descripcion": "De pie, inclina la cabeza hacia un lado sin elevar el hombro, manten 20 segundos.", "series": 2, "repeticiones": 10, "imagen": null, "tags": ["contractura", "cronico", "estiramiento", "inicial"] },
+    { "id": "ex_cervical_03", "zonaId": "cervical", "nombre": "Rotacion cervical controlada", "descripcion": "De pie, gira la cabeza de lado a lado en rango comodo sin dolor, manten cada lado.", "series": 2, "repeticiones": 12, "imagen": null, "tags": ["cronico", "contractura", "movilidad", "inicial"] },
+    { "id": "ex_cervical_04", "zonaId": "cervical", "nombre": "Flexion cervical hacia adelante", "descripcion": "Baja la barbilla al pecho de forma lenta y controlada, siente el estiramiento.", "series": 2, "repeticiones": 10, "imagen": null, "tags": ["contractura", "prevencion", "estiramiento", "inicial"] },
+    { "id": "ex_cervical_05", "zonaId": "cervical", "nombre": "Estiramiento de cuello en diagonal", "descripcion": "Pasa una mano sobre la cabeza y presiona suavemente hacia diagonal, manten 30 segundos.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["contractura", "cronico", "estiramiento", "moderado"] },
+    { "id": "ex_cervical_06", "zonaId": "cervical", "nombre": "Ejercicio de resistencia isometrica cervical", "descripcion": "Coloca la mano en la cabeza y presiona contra ella sin permitir movimiento, manten 5 seg.", "series": 3, "repeticiones": 8, "imagen": null, "tags": ["cronico", "postoperatorio", "fuerza", "moderado"] },
+    { "id": "ex_cervical_07", "zonaId": "cervical", "nombre": "Estiramiento de trapecio superior", "descripcion": "Inclina la cabeza hacia un lado y presiona suavemente el hombro opuesto hacia abajo.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["contractura", "tension_postural", "estiramiento", "inicial"] },
+    { "id": "ex_cervical_08", "zonaId": "cervical", "nombre": "Movilizacion de escapula", "descripcion": "De pie, eleva y baja los hombros de forma controlada, realiza circulos.", "series": 2, "repeticiones": 15, "imagen": null, "tags": ["contractura", "prevencion", "movilidad", "inicial"] },
+    { "id": "ex_cervical_09", "zonaId": "cervical", "nombre": "Retraccion cervical progresiva", "descripcion": "Sentado, lleva la barbilla hacia atras y anade una ligera resistencia con los dedos en el menton.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["hernia", "cronico", "fuerza", "moderado"] },
+    { "id": "ex_cervical_10", "zonaId": "cervical", "nombre": "Estiramiento suboccipital", "descripcion": "Sentado, asiente suavemente con la cabeza (pequeno si) y sosten 5 segundos.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["cefalea_cervical", "tension_postural", "hernia", "estiramiento", "inicial"] },
+    { "id": "ex_cervical_11", "zonaId": "cervical", "nombre": "Flexion profunda de flexores cervicales", "descripcion": "Tumbado boca arriba, asiente suavemente sin levantar la cabeza del suelo, manten 10 seg.", "series": 3, "repeticiones": 8, "imagen": null, "tags": ["hernia", "cronico", "tension_postural", "fuerza", "moderado"] },
+    { "id": "ex_cervical_12", "zonaId": "cervical", "nombre": "Estiramiento de esternocleidomastoideo", "descripcion": "Gira la cabeza al lado contrario al dolor y eleva ligeramente el menton, manten 30 seg.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["contractura", "agudo", "estiramiento", "inicial"] },
+    { "id": "ex_tobillo_01", "zonaId": "tobillo", "nombre": "Flexo-extension de tobillo", "descripcion": "Sentado, mueve el pie arriba y abajo de forma controlada y lenta.", "series": 3, "repeticiones": 15, "imagen": null, "tags": ["agudo", "esguince", "postoperatorio", "movilidad", "inicial"] },
+    { "id": "ex_tobillo_02", "zonaId": "tobillo", "nombre": "Circulos de tobillo", "descripcion": "Sentado, realiza circulos amplios con el pie en ambos sentidos.", "series": 2, "repeticiones": 12, "imagen": null, "tags": ["agudo", "esguince", "postoperatorio", "movilidad", "inicial"] },
+    { "id": "ex_tobillo_03", "zonaId": "tobillo", "nombre": "Elevacion de talones de pie", "descripcion": "De pie con apoyo, eleva talones levantando cuerpo sobre las puntas, baja lentamente.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "tendinitis_aquilea", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_tobillo_04", "zonaId": "tobillo", "nombre": "Apoyo en punta de pie", "descripcion": "De pie con apoyo, apoya solo las puntas de los pies, manten 10 segundos.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["cronico", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_tobillo_05", "zonaId": "tobillo", "nombre": "Inversion de tobillo", "descripcion": "Sentado, gira el pie hacia adentro de forma controlada, manten 5 segundos.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["esguince", "cronico", "fuerza", "moderado"] },
+    { "id": "ex_tobillo_06", "zonaId": "tobillo", "nombre": "Eversion de tobillo", "descripcion": "Sentado, gira el pie hacia afuera de forma controlada, manten 5 segundos.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["esguince", "cronico", "fuerza", "moderado"] },
+    { "id": "ex_tobillo_07", "zonaId": "tobillo", "nombre": "Estiramiento de gemelos", "descripcion": "De pie frente a pared, adelanta una pierna y flexiona la rodilla, la otra se estira atras.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["tendinitis_aquilea", "cronico", "prevencion", "estiramiento", "moderado"] },
+    { "id": "ex_tobillo_08", "zonaId": "tobillo", "nombre": "Caminar sobre talones", "descripcion": "De pie, camina apoyandote solo en los talones durante 20-30 segundos.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["prevencion", "cronico", "fuerza", "moderado"] },
+    { "id": "ex_tobillo_09", "zonaId": "tobillo", "nombre": "Ejercicio de alfabeto con pie", "descripcion": "Sentado, dibuja el abecedario en el aire con el pie, controlando todos los movimientos.", "series": 1, "repeticiones": 1, "imagen": null, "tags": ["agudo", "esguince", "postoperatorio", "movilidad", "inicial"] },
+    { "id": "ex_tobillo_10", "zonaId": "tobillo", "nombre": "Elevacion excentrica de talon (Alfredson)", "descripcion": "De pie en un escalon, eleva con ambas piernas y baja solo con la afectada muy lentamente.", "series": 3, "repeticiones": 15, "imagen": null, "tags": ["tendinitis_aquilea", "cronico", "fuerza", "avanzado"] },
+    { "id": "ex_tobillo_11", "zonaId": "tobillo", "nombre": "Equilibrio monopodal en superficie inestable", "descripcion": "De pie sobre una colchoneta o almohada, aguanta el equilibrio 30 segundos.", "series": 3, "repeticiones": 1, "imagen": null, "tags": ["esguince", "cronico", "prevencion", "propiocepcion", "moderado"] },
+    { "id": "ex_tobillo_12", "zonaId": "tobillo", "nombre": "Fortalecimiento con banda en eversion", "descripcion": "Sentado, con banda elastica, empuja el pie hacia afuera contra la resistencia.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["esguince", "cronico", "fuerza", "moderado"] },
+    { "id": "ex_cadera_01", "zonaId": "cadera", "nombre": "Abduccion de cadera tumbado", "descripcion": "Acostado de lado, eleva la pierna superior lentamente manteniendo alineacion.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "bursitis", "artrosis", "fuerza", "moderado"] },
+    { "id": "ex_cadera_02", "zonaId": "cadera", "nombre": "Aduccion de cadera tumbado", "descripcion": "Acostado de lado, cruza la pierna superior sobre la inferior y eleva la inferior.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["cronico", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_cadera_03", "zonaId": "cadera", "nombre": "Rotacion externa de cadera", "descripcion": "Acostado boca arriba con rodillas flexionadas, gira las rodillas hacia afuera manteniendo pies juntos.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["piriforme", "cronico", "movilidad", "moderado"] },
+    { "id": "ex_cadera_04", "zonaId": "cadera", "nombre": "Rotacion interna de cadera", "descripcion": "Acostado boca arriba con rodillas flexionadas, gira las rodillas hacia adentro.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "artrosis", "movilidad", "moderado"] },
+    { "id": "ex_cadera_05", "zonaId": "cadera", "nombre": "Flexion de cadera en posicion supina", "descripcion": "Acostado boca arriba, levanta la rodilla hacia el pecho, alterna lados.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "artrosis", "movilidad", "moderado"] },
+    { "id": "ex_cadera_06", "zonaId": "cadera", "nombre": "Estiramiento de piriforme", "descripcion": "Acostado boca arriba, cruza una pierna sobre la otra y acerca la rodilla al pecho.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["piriforme", "cronico", "estiramiento", "moderado"] },
+    { "id": "ex_cadera_07", "zonaId": "cadera", "nombre": "Estiramiento de gluteos", "descripcion": "De pie, levanta una rodilla y la sostienes hacia el pecho, manten 30 segundos.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["cronico", "piriforme", "prevencion", "estiramiento", "moderado"] },
+    { "id": "ex_cadera_08", "zonaId": "cadera", "nombre": "Marcha de gluteos", "descripcion": "Sentado con piernas estiradas, muevete hacia adelante usando los gluteos y manos.", "series": 2, "repeticiones": 20, "imagen": null, "tags": ["cronico", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_cadera_09", "zonaId": "cadera", "nombre": "Isometrico de abductores en pared", "descripcion": "De lado contra la pared, empuja la rodilla hacia la pared sin moverla, manten 5 seg.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["agudo", "bursitis", "postoperatorio", "fuerza", "inicial"] },
+    { "id": "ex_cadera_10", "zonaId": "cadera", "nombre": "Estiramiento de psoas en zancada", "descripcion": "En posicion de zancada baja, lleva la cadera hacia adelante sintiendo el estiramiento en el frente.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["artrosis", "cronico", "prevencion", "estiramiento", "moderado"] },
+    { "id": "ex_cadera_11", "zonaId": "cadera", "nombre": "Clamshell (abduccion de cadera en decubito lateral)", "descripcion": "Tumbado de lado con rodillas flexionadas, separa la rodilla de arriba como una almeja.", "series": 3, "repeticiones": 15, "imagen": null, "tags": ["bursitis", "piriforme", "artrosis", "fuerza", "inicial"] },
+    { "id": "ex_cadera_12", "zonaId": "cadera", "nombre": "Sentadilla con separacion de rodillas", "descripcion": "Sentadilla parcial con banda elastica sobre las rodillas, abre las rodillas contra la resistencia.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["prevencion", "cronico", "fuerza", "avanzado"] },
+    { "id": "ex_dorsal_01", "zonaId": "dorsal", "nombre": "Encogimiento de hombros", "descripcion": "De pie, eleva los hombros hacia las orejas, manten 2 segundos y relaja.", "series": 3, "repeticiones": 15, "imagen": null, "tags": ["contractura", "prevencion", "movilidad", "inicial"] },
+    { "id": "ex_dorsal_02", "zonaId": "dorsal", "nombre": "Flexion toracica en silla", "descripcion": "Sentado, coloca manos detras de la cabeza e inclinate hacia atras suavemente.", "series": 2, "repeticiones": 10, "imagen": null, "tags": ["cifosis", "contractura", "movilidad", "moderado"] },
+    { "id": "ex_dorsal_03", "zonaId": "dorsal", "nombre": "Estiramiento de pecho en esquina", "descripcion": "De frente a una esquina con brazos en 90 grados, avanza para sentir estiramiento en pecho.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["cifosis", "contractura", "prevencion", "estiramiento", "moderado"] },
+    { "id": "ex_dorsal_04", "zonaId": "dorsal", "nombre": "Remo en banda", "descripcion": "De pie o sentado, tira una banda hacia el cuerpo manteniendo codos altos.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cifosis", "cronico", "fuerza", "moderado"] },
+    { "id": "ex_dorsal_05", "zonaId": "dorsal", "nombre": "Extension de espalda en pelota", "descripcion": "Sentado en pelota de estabilidad, camina manos hacia adelante y regresa extendiendo espalda.", "series": 2, "repeticiones": 10, "imagen": null, "tags": ["cifosis", "cronico", "fuerza", "moderado"] },
+    { "id": "ex_dorsal_06", "zonaId": "dorsal", "nombre": "Estiramiento de espalda alta", "descripcion": "De pie, abraza el brazo de la silla opuesta y estira los dorsales, manten 30 seg.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["contractura", "cronico", "estiramiento", "inicial"] },
+    { "id": "ex_dorsal_07", "zonaId": "dorsal", "nombre": "Retraccion escapular", "descripcion": "De pie, junta las escapulas llevando los hombros atras, manten 5 segundos.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cifosis", "contractura", "prevencion", "estabilizacion", "moderado"] },
+    { "id": "ex_dorsal_08", "zonaId": "dorsal", "nombre": "Gato-vaca modificado", "descripcion": "En gatea, alterna arqueando y redondeando la espalda enfocandose en dorsal.", "series": 2, "repeticiones": 15, "imagen": null, "tags": ["contractura", "cifosis", "movilidad", "inicial"] },
+    { "id": "ex_dorsal_09", "zonaId": "dorsal", "nombre": "Superman dorsal", "descripcion": "Boca abajo con brazos estirados, levanta simultaneamente brazos y piernas del suelo, manten 3 seg.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["cifosis", "prevencion", "fuerza", "avanzado"] },
+    { "id": "ex_dorsal_10", "zonaId": "dorsal", "nombre": "Apertura toracica en espuma", "descripcion": "Tumbado sobre un rulo de foam en la zona dorsal, abre brazos y deja caer la espalda hacia atras.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["cifosis", "contractura", "movilidad", "moderado"] },
+    { "id": "ex_dorsal_11", "zonaId": "dorsal", "nombre": "Estiramiento intercostal de pie", "descripcion": "De pie, eleva un brazo y se inclina lateralmente hacia el lado contrario al dolor.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["agudo", "contractura", "estiramiento", "inicial"] },
+    { "id": "ex_codo_01", "zonaId": "codo", "nombre": "Flexion de codo", "descripcion": "De pie o sentado, flexiona el codo llevando la mano hacia el hombro.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_codo_02", "zonaId": "codo", "nombre": "Extension de codo", "descripcion": "De pie con brazo en alto, extiende completamente el codo hacia adelante.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_codo_03", "zonaId": "codo", "nombre": "Pronacion y supinacion", "descripcion": "Con codo flexionado 90 grados, gira el antebrazo palma arriba y palma abajo.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "epicondilitis", "epitrocleitis", "movilidad", "moderado"] },
+    { "id": "ex_codo_04", "zonaId": "codo", "nombre": "Estiramiento de extensores del codo", "descripcion": "Lleva un brazo atras de la cabeza flexionado y presiona suavemente el codo hacia abajo.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["cronico", "contractura", "estiramiento", "inicial"] },
+    { "id": "ex_codo_05", "zonaId": "codo", "nombre": "Estiramiento de flexores del codo", "descripcion": "Con brazo extendido, presiona la palma hacia abajo con la otra mano.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["epicondilitis", "epitrocleitis", "contractura", "estiramiento", "moderado"] },
+    { "id": "ex_codo_06", "zonaId": "codo", "nombre": "Ejercicio isometrico de codo", "descripcion": "Flexiona el codo con resistencia manual, presiona sin permitir movimiento 5 segundos.", "series": 3, "repeticiones": 8, "imagen": null, "tags": ["agudo", "postoperatorio", "fuerza", "inicial"] },
+    { "id": "ex_codo_07", "zonaId": "codo", "nombre": "Ejercicio de tennis con banda", "descripcion": "Con codo flexionado, estira la muneca hacia arriba con resistencia de banda.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["epicondilitis", "cronico", "fuerza", "moderado"] },
+    { "id": "ex_codo_08", "zonaId": "codo", "nombre": "Ejercicio de golfer con banda", "descripcion": "Con codo flexionado, flexiona la muneca hacia abajo con resistencia de banda.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["epitrocleitis", "cronico", "fuerza", "moderado"] },
+    { "id": "ex_codo_09", "zonaId": "codo", "nombre": "Excentrico de extensores de muneca (Tyler Twist)", "descripcion": "Con una banda, flexiona la muneca con la mano sana y extiende muy lentamente con la afectada.", "series": 3, "repeticiones": 15, "imagen": null, "tags": ["epicondilitis", "cronico", "fuerza", "avanzado"] },
+    { "id": "ex_codo_10", "zonaId": "codo", "nombre": "Excentrico de flexores de muneca", "descripcion": "Con una banda, extiende la muneca con la mano sana y flexiona muy lentamente con la afectada.", "series": 3, "repeticiones": 15, "imagen": null, "tags": ["epitrocleitis", "cronico", "fuerza", "avanzado"] },
+    { "id": "ex_codo_11", "zonaId": "codo", "nombre": "Estiramiento de pronadores", "descripcion": "Con codo extendido, supina completamente el antebrazo y presiona suavemente con la otra mano.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["epicondilitis", "contractura", "estiramiento", "moderado"] },
+    { "id": "ex_muneca_01", "zonaId": "muneca", "nombre": "Flexion de muneca", "descripcion": "Con antebrazo apoyado, flexiona la muneca llevando la palma hacia el antebrazo.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_muneca_02", "zonaId": "muneca", "nombre": "Extension de muneca", "descripcion": "Con antebrazo apoyado, extiende la muneca hacia arriba separandose del antebrazo.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "prevencion", "fuerza", "moderado"] },
+    { "id": "ex_muneca_03", "zonaId": "muneca", "nombre": "Desviacion radial de muneca", "descripcion": "Con antebrazo apoyado, inclina la muneca hacia el lado del pulgar.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["quervain", "cronico", "movilidad", "moderado"] },
+    { "id": "ex_muneca_04", "zonaId": "muneca", "nombre": "Desviacion cubital de muneca", "descripcion": "Con antebrazo apoyado, inclina la muneca hacia el lado del menique.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "prevencion", "movilidad", "moderado"] },
+    { "id": "ex_muneca_05", "zonaId": "muneca", "nombre": "Rotacion de muneca", "descripcion": "Extiende el brazo y gira la muneca en ambos sentidos en rango completo.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["agudo", "esguince", "cronico", "movilidad", "moderado"] },
+    { "id": "ex_muneca_06", "zonaId": "muneca", "nombre": "Estiramiento de flexores de muneca", "descripcion": "Extiende el brazo hacia adelante y presiona el dorso de la mano hacia abajo.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["tunel_carpiano", "cronico", "estiramiento", "moderado"] },
+    { "id": "ex_muneca_07", "zonaId": "muneca", "nombre": "Estiramiento de extensores de muneca", "descripcion": "Extiende el brazo y con la otra mano presiona la palma hacia abajo.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["tunel_carpiano", "cronico", "estiramiento", "moderado"] },
+    { "id": "ex_muneca_08", "zonaId": "muneca", "nombre": "Movilizacion de dedos y muneca", "descripcion": "Realiza ejercicios de apertura y cierre de puno, rotaciones de muneca.", "series": 2, "repeticiones": 15, "imagen": null, "tags": ["agudo", "tunel_carpiano", "esguince", "movilidad", "inicial"] },
+    { "id": "ex_muneca_09", "zonaId": "muneca", "nombre": "Agarre con pelota terapeutica", "descripcion": "Exprime una pelota suave en la mano, realiza 10-15 repeticiones.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["tunel_carpiano", "cronico", "fuerza", "moderado"] },
+    { "id": "ex_muneca_10", "zonaId": "muneca", "nombre": "Ejercicio con varilla de pronacion-supinacion", "descripcion": "Sosten una varilla y gira hacia ambos lados con movimiento controlado.", "series": 3, "repeticiones": 12, "imagen": null, "tags": ["cronico", "prevencion", "movilidad", "moderado"] },
+    { "id": "ex_muneca_11", "zonaId": "muneca", "nombre": "Deslizamiento de tendones del nervio mediano", "descripcion": "Extiende el brazo y haz una secuencia: puno, dedos estirados, muneca extendida, pulgar extendido.", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["tunel_carpiano", "cronico", "movilidad", "inicial"] },
+    { "id": "ex_muneca_12", "zonaId": "muneca", "nombre": "Estiramiento de Finkelstein modificado", "descripcion": "Cierra el pulgar dentro del puno y dobla la muneca hacia el menique suavemente.", "series": 2, "repeticiones": 1, "imagen": null, "tags": ["quervain", "agudo", "estiramiento", "moderado"] },
+    { "id": "ex_muneca_13", "zonaId": "muneca", "nombre": "Pinza con resistencia", "descripcion": "Junta el pulgar con cada dedo contra resistencia (banda o plastilina terapeutica).", "series": 3, "repeticiones": 10, "imagen": null, "tags": ["tunel_carpiano", "cronico", "fuerza", "moderado"] }
   ]
 }

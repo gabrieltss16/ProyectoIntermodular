@@ -180,7 +180,7 @@ class ZoneExercisesScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: scheme.primaryContainer,
-                      child: Icon(Icons.fitness_center, color: scheme.primary, size: 30),
+                      child: Icon(Icons.fitness_center, color: scheme.primary, size: 32),
                     ),
                     const SizedBox(height: 12),
                     const Text('No hay ejercicios cargados para esta zona todavía.'),

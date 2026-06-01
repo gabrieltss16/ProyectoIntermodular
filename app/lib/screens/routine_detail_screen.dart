@@ -136,7 +136,7 @@ class RoutineDetailScreen extends StatelessWidget {
                         CircleAvatar(
                           radius: 28,
                           backgroundColor: scheme.primary,
-                          child: Icon(Icons.task_alt, color: Colors.white, size: 24),
+                          child: Icon(Icons.task_alt, color: Colors.white, size: 32),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

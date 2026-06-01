@@ -32,8 +32,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       curve: Curves.easeOutCubic,
       child: Image.asset(
         assetKey(assetPath),
-        width: 24,
-        height: 24,
+        width: 32,
+        height: 32,
         fit: BoxFit.contain,
       ),
     );
@@ -67,6 +67,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       builder: (_) => AlertDialog(
         title: const Text('Cerrar sesión'),
         content: const Text('¿Quieres salir de tu cuenta?'),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -100,82 +101,30 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   Widget build(BuildContext context) {
     final uid = (!widget.isGuest && FirebaseBootstrap.isReady) ? AuthService().currentUser()?.uid : null;
 
-    Widget buildHeader() {
-      return SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      assetKey('images/logo/logoapp.jpg'),
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'FisioIA',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
-                      ),
-                      Text(
-                        widget.isGuest ? 'Modo invitado' : 'Tu espacio de recuperación',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
     if (widget.isGuest) {
       return Scaffold(
-        body: Column(
+        body: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: (index) {
+            if (!mounted) return;
+            setState(() => _selectedIndex = index);
+          },
           children: [
-            buildHeader(),
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                onPageChanged: (index) {
-                  if (!mounted) return;
-                  setState(() => _selectedIndex = index);
-                },
-                children: [
-                  ZonesScreen(data: widget.data, uid: null),
-                  RoutinesScreen(
-                    data: widget.data,
-                    uid: null,
-                    isGuest: true,
-                    onGuestBack: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
-                        (route) => false,
-                      );
-                    },
-                  ),
-                  _loginRequiredPage(),
-                ],
-              ),
+            ZonesScreen(data: widget.data, uid: null),
+            RoutinesScreen(
+              data: widget.data,
+              uid: null,
+              isGuest: true,
+              onGuestBack: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  (route) => false,
+                );
+              },
             ),
+            _loginRequiredPage(),
           ],
         ),
         bottomNavigationBar: NavigationBar(
@@ -226,21 +175,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     ];
 
     return Scaffold(
-      body: Column(
-        children: [
-          buildHeader(),
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              onPageChanged: (index) {
-                if (!mounted) return;
-                setState(() => _selectedIndex = index);
-              },
-              children: pages,
-            ),
-          ),
-        ],
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (index) {
+          if (!mounted) return;
+          setState(() => _selectedIndex = index);
+        },
+        children: pages,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
