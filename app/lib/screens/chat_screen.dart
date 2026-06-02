@@ -14,7 +14,12 @@ import '../services/routine_repository.dart';
 import '../models/routine.dart';
 import 'routine_editor_screen.dart';
 
+// ChatScreen es la pantalla del asistente IA. Es StatefulWidget porque
+// necesita gestionar: lista de mensajes, estado de envío, rutina pendiente, etc.
+// Es el fichero más complejo del proyecto (~1050 líneas).
 class ChatScreen extends StatefulWidget {
+  // CatalogData se pasa desde MainMenuScreen para no recargar el catálogo
+  // cada vez que se navega al chat.
   final CatalogData data;
 
   const ChatScreen({super.key, required this.data});
@@ -23,10 +28,14 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
+// Clase interna (privada al fichero) que representa un mensaje del chat.
+// Almacena datos extra para el sistema de recomendación de rutinas:
+//   - zoneId: si no es null, el mensaje incluye una tarjeta de rutina
+//   - suggestedExerciseIds: IDs concretos sugeridos para esa rutina
 class _ChatMessage {
-  final bool fromUser;
-  final String text;
-  final String? zoneId; // Si no es null, es una recomendación de ejercicios
+  final bool fromUser;              // true = mensaje del usuario; false = respuesta IA
+  final String text;                // Texto del mensaje
+  final String? zoneId;            // Si no es null, muestra la tarjeta de rutina
   final List<String>? suggestedExerciseIds;
   final String? suggestedRoutineName;
 
@@ -60,27 +69,55 @@ class _ChatMessage {
   }
 }
 
+// Estado del ChatScreen. Extiende State<ChatScreen> para acceder a 'widget.data'
+// y al BuildContext. Flutter separa el widget (configuración inmutable) del estado
+// (datos que cambian). Equivale a un ViewModel + Fragment en Android.
 class _ChatScreenState extends State<ChatScreen> {
+  // Prefijo de la clave de SharedPreferences para los mensajes del chat.
+  // El sufijo '_v1' permite migrar el formato en el futuro.
   static const _chatStorageKeyBase = 'chat_screen_messages_v1';
 
+  // TextEditingController: gestiona el texto del campo de entrada.
+  // Equivale a binding de un EditText en Android. Se debe liberar en dispose().
   final _ctrl = TextEditingController();
+  // ScrollController: permite desplazar la lista al último mensaje programáticamente.
   final _scrollCtrl = ScrollController();
 
-  bool _sending = false;
-  final _limiter = ChatUsageLimiter();
+  bool _sending = false;            // Bloquea la UI mientras se espera respuesta de la IA
+  final _limiter = ChatUsageLimiter(); // Rate limiter: máx N consultas/día
 
-  final _routineRepo = RoutineRepository();
-  _PendingRoutine? _pendingRoutine;
-  bool _showGoToRoutines = false;
+  final _routineRepo = RoutineRepository(); // Para guardar rutinas desde el chat
+  _PendingRoutine? _pendingRoutine;  // Rutina propuesta pero aún no guardada
+  bool _showGoToRoutines = false;   // Muestra el banner tras guardar rutina
 
+  // Lista de mensajes del chat. setState() al modificarla redibuja la ListView.
   final List<_ChatMessage> _messages = [];
 
   @override
   void initState() {
     super.initState();
     _restoreChat();
+    // Muestra el aviso médico la primera vez que el usuario abre el chat (RF07).
+    // addPostFrameCallback garantiza que el árbol de widgets ya está montado
+    // antes de intentar mostrar un diálogo.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkFirstTimeWarning());
   }
 
+  /// Comprueba con SharedPreferences si ya se mostró el aviso médico.
+  /// Si no, lo muestra y marca la clave para que no vuelva a aparecer.
+  Future<void> _checkFirstTimeWarning() async {
+    const key = 'chat_safety_warning_v1';
+    final prefs = await SharedPreferences.getInstance();
+    final shown = prefs.getBool(key) ?? false;
+    if (!shown && mounted) {
+      await _showSafetyWarning();
+      await prefs.setBool(key, true);
+    }
+  }
+
+  // dispose() es el destructor del State. SIEMPRE liberar controllers aquí.
+  // Si no se liberan, Flutter lanza excepciones de memoria. En Android equivale
+  // a onDestroy() o el bloque finally de un ViewModel.clear().
   @override
   void dispose() {
     _ctrl.dispose();
@@ -95,6 +132,9 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  // Genera la clave de SharedPreferences específica para el usuario actual.
+  // Así cada usuario tiene su propio historial de chat en el mismo dispositivo.
+  // Invitados usan la clave 'guest'; usuarios autenticados usan su UID.
   Future<String> _chatStorageKeyForCurrentUser() async {
     final uid = FirebaseBootstrap.isReady ? AuthService().currentUser()?.uid : null;
     final userKey = (uid == null || uid.trim().isEmpty) ? 'guest' : uid;
@@ -141,6 +181,8 @@ class _ChatScreenState extends State<ChatScreen> {
     _rebuildPendingFromLatestSuggestion();
   }
 
+  // Persiste los últimos 120 mensajes en SharedPreferences para que el historial
+  // sobreviva al cerrar la app. Más de 120 mensajes causaría problemas de espacio.
   Future<void> _persistChat() async {
     final prefs = await SharedPreferences.getInstance();
     final storageKey = await _chatStorageKeyForCurrentUser();
@@ -192,6 +234,9 @@ class _ChatScreenState extends State<ChatScreen> {
     _buildPendingRoutineForZone(message.zoneId!);
   }
 
+  // _normalize convierte un texto a minúsculas y elimina tildes/diacríticos
+  // para comparaciones case-insensitive y accent-insensitive.
+  // Por ejemplo: 'Hombro' == 'hombro' == 'Hombró' después de normalizar.
   String _normalize(String value) {
     return value
         .toLowerCase()
@@ -225,6 +270,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return zones;
   }
 
+  // Determina si el usuario tiene intención de crear o ver una rutina.
+  // Detecta palabras clave en el texto normalizado.
   bool _looksLikeRoutineIntent(String text) {
     final lower = _normalize(text);
     return lower.contains('rutina') ||
@@ -323,6 +370,12 @@ class _ChatScreenState extends State<ChatScreen> {
     return 'Rutina sugerida para $zoneName:\n$list';
   }
 
+  // _send() gestiona el flujo completo de enviar un mensaje:
+  //   1. Valida (no vacío, ≤500 chars)
+  //   2. Añade el mensaje del usuario a la lista y persiste
+  //   3. Llama a _respondAsync() que devuelve la respuesta
+  //   4. Añade la respuesta a la lista, persiste y hace scroll al final
+  // setState() dentro notifica a Flutter para que reconstruya el build().
   Future<void> _send() async {
     final text = _ctrl.text.trim();
     if (text.isEmpty) return;
@@ -354,6 +407,9 @@ class _ChatScreenState extends State<ChatScreen> {
       reply = 'He tenido un problema procesando tu mensaje. Inténtalo de nuevo en unos segundos.';
     }
 
+    // mounted comprueba que el widget todavía está en el árbol de Flutter.
+    // Si el usuario navegó fuera mientras esperaba la respuesta, no llamamos setState.
+    // No hacer esta comprobación puede causar excepciones "setState on disposed widget".
     if (!mounted) return;
     setState(() {
       _messages.add(_ChatMessage(

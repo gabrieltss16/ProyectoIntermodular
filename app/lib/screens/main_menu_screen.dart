@@ -10,9 +10,15 @@ import 'profile_screen.dart';
 import 'routines_screen.dart';
 import 'zones_screen.dart';
 
+// MainMenuScreen es la pantalla principal de navegación.
+// Implementa un patrón NavigationBar + PageView:
+//   - NavigationBar (bottom nav) muestra los íconos y etiquetas
+//   - PageView contiene todas las pantallas hijas preconstruidas
+//   - Al cambiar de pestaña, se anima a la página correspondiente
+// En Android sería equivalente a MainActivity con un BottomNavigationView + ViewPager2.
 class MainMenuScreen extends StatefulWidget {
-  final CatalogData data;
-  final bool isGuest;
+  final CatalogData data;   // Catálogo de ejercicios y zonas (cargado una sola vez)
+  final bool isGuest;       // true = modo invitado (sin rutinas de nube ni perfil)
 
   const MainMenuScreen({super.key, required this.data, required this.isGuest});
 
@@ -21,13 +27,14 @@ class MainMenuScreen extends StatefulWidget {
 }
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
-  int _selectedIndex = 0;
-  late final PageController _pageController;
+  int _selectedIndex = 0; // Índice de la pestaña activa (empieza en 0 = Explorar)
+  late final PageController _pageController; // Controla la animación entre páginas
 
+  // Crea el icono de la barra de navegación con animación de escala al seleccionarlo.
   Widget _navAssetIcon({required int index, required String assetPath}) {
     final selected = _selectedIndex == index;
     return AnimatedScale(
-      scale: selected ? 1.08 : 1.0,
+      scale: selected ? 1.08 : 1.0, // Escala ligera al estar activo
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOutCubic,
       child: Image.asset(

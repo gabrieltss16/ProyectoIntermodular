@@ -7,6 +7,9 @@ import '../services/firebase_bootstrap.dart';
 import 'login_screen.dart';
 import 'main_menu_screen.dart';
 
+// HomeScreen es la pantalla de bienvenida (la primera que ve el usuario).
+// Es StatefulWidget porque necesita comprobar sesión activa en initState()
+// y potencialmente navegar a MainMenuScreen si ya hay sesión.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -18,26 +21,31 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Comprueba si ya hay sesión activa al abrir la app.
+    // Si la hay, salta directamente al menú principal sin mostrar esta pantalla.
     _checkSession();
   }
 
   Future<void> _checkSession() async {
     if (!FirebaseBootstrap.isReady) {
-      return;
+      return; // Sin Firebase no hay sesión que comprobar
     }
 
     final user = AuthService().currentUser();
-    if (user == null) return;
+    if (user == null) return; // No hay sesión: queda en HomeScreen
 
+    // Hay sesión activa: carga el catálogo y navega al menú.
     final data = await CatalogService().load();
-    if (!mounted) return;
+    if (!mounted) return; // Protección: widget puede haberse desmontado
 
+    // pushAndRemoveUntil navega a MainMenuScreen y elimina HomeScreen de la pila.
+    // Así el botón "atrás" del dispositivo no vuelve a HomeScreen.
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
         builder: (_) => MainMenuScreen(data: data, isGuest: false),
       ),
-      (route) => false,
+      (route) => false, // Elimina TODAS las rutas anteriores
     );
   }
 
